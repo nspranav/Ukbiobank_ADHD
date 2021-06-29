@@ -1,0 +1,5 @@
+.Chromozomes.py.swp
+.vscode/settings.json
+*.pyc
+*.ipynb_checkpoints
+*.obj
