@@ -68,7 +68,7 @@ else:
 criterion = nn.MSELoss()
 optimizer = optim.SGD(model.parameters(),lr=0.001)
 
-epochs = 50
+epochs = 150
 train_losses, validation_losses = [],[]
 
 print('Starting to Train...')

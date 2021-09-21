@@ -31,7 +31,7 @@ class Network(nn.Module):
     def forward(self, img):
         img = self.pool(F.relu(self.bn1(self.cv1(img))))
         img = self.pool(F.relu(self.bn2(self.cv2(img))))
-        img = self.pool(F.relu(self.bn3(self.cv3(img))))
+        img = self.pool(F.relu(self.bn3(self.cv3(img)))) 
         #img = self.pool(F.relu(self.bn4(self.cv4(img))))
         #img = self.pool(F.relu(self.bn5(self.cv5(img))))
         #img = self.pool(F.relu(self.bn6(self.cv6(img))))
