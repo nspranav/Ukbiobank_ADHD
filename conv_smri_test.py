@@ -66,7 +66,7 @@ else:
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.0001,weight_decay=1e-3)
+optimizer = optim.SGD(model.parameters(),lr=0.0001)
 
 epochs = 50
 train_losses, validation_losses = [],[]
