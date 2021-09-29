@@ -4,7 +4,7 @@
 #SBATCH -c 5
 #SBATCH --mem=64g
 #SBATCH --gres=gpu:v100:1
-#SBATCH -p qTRDGPUH
+#SBATCH -p qTRDGPUL
 #SBATCH -t 7680
 #SBATCH -J ConvLr00001
 #SBATCH -e error%A.err
