@@ -28,8 +28,8 @@ test_size = 0.05
 
 data = CustomDataset(transform = 
                         transforms.Compose([
-                        transforms.RandomHorizontalFlip(),
-                        transforms.ToTensor()]))
+                        transforms.ToTensor(),    
+                        transforms.RandomHorizontalFlip()]))
 
 
 # obtaining indices that will be used for train, validation, and test
@@ -70,7 +70,7 @@ else:
 criterion = nn.MSELoss()
 optimizer = optim.SGD(model.parameters(),lr=1e-5)
 
-epochs = 300
+epochs = 150
 train_losses, validation_losses = [],[]
 
 print('Starting to Train...')
