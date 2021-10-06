@@ -96,7 +96,7 @@ for e in range(epochs):
 
         loss.backward()
 
-        optimizer.step()
+        scheduler.step()
 
         train_loss += loss.item()
 
