@@ -28,8 +28,10 @@ test_size = 0.05
 
 data = CustomDataset(transform = 
                         transforms.Compose([
-                            transforms.RandomHorizontalFlip(),
-                            transforms.ToTensor()]))
+                            transforms.ToTensor(),
+                            transforms.RandomAffine(degrees=0,
+                                            translate=((1//60),0)),    
+                            transforms.RandomHorizontalFlip()]))
 
 
 # obtaining indices that will be used for train, validation, and test

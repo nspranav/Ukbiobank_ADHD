@@ -8,6 +8,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from custom_dataset import CustomDataset
 from network import Network
 import torch
+from torch.optim.lr_scheduler import StepLR
 
 #%%
 
@@ -28,9 +29,10 @@ test_size = 0.05
 
 data = CustomDataset(transform = 
                         transforms.Compose([
-                        transforms.ToTensor(),    
-                        transforms.RandomHorizontalFlip(),
-                        transforms.RandomVerticalFlip(p=0.3)]))
+                        transforms.ToTensor(),
+                        transforms.RandomAffine(degrees= 0, 
+                                translate=((1//60),0)),    
+                        transforms.RandomHorizontalFlip()]))
 
 
 # obtaining indices that will be used for train, validation, and test
@@ -69,9 +71,10 @@ else:
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=1e-3, momentum=0.5)
-
+optimizer = optim.SGD(model.parameters(),lr=1e-2)
+scheduler = StepLR(optimizer, step_size=30, gamma=0.3)
 epochs = 150
+
 train_losses, validation_losses = [],[]
 
 print('Starting to Train...')
