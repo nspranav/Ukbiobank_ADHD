@@ -71,7 +71,7 @@ else:
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=1e-2,weight_decay=0.001)
+optimizer = optim.SGD(model.parameters(),lr=0.001,weight_decay=0.001)
 scheduler = StepLR(optimizer, step_size=30, gamma=0.3)
 epochs = 150
 
