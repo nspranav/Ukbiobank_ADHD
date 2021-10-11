@@ -1,4 +1,5 @@
 #%%
+import sys
 import numpy as np
 from numpy.core.numeric import indices
 from torch import nn, optim
@@ -10,12 +11,14 @@ from network import Network
 import torch
 from torch.optim.lr_scheduler import StepLR
 
+
 #%%
 
 ########################
 # Loading the Data #####
 ########################
 
+print(sys.prefix)
 
 # number of subprocesses to use for data loading
 num_workers = 4
@@ -29,10 +32,7 @@ test_size = 0.05
 
 data = CustomDataset(transform = 
                         transforms.Compose([
-                        transforms.ToTensor(),
-                        transforms.RandomAffine(degrees= 0, 
-                                translate=((1//60),0)),    
-                        transforms.RandomHorizontalFlip()]))
+                        transforms.ToTensor()]))
 
 
 # obtaining indices that will be used for train, validation, and test
@@ -71,8 +71,10 @@ else:
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.001,weight_decay=0.001)
-scheduler = StepLR(optimizer, step_size=30, gamma=0.3)
+optimizer = optim.SGD(model.parameters(),lr=0.01)
+
+scheduler = StepLR(optimizer, step_size=10, gamma=0.3)
+
 epochs = 150
 
 train_losses, validation_losses = [],[]
@@ -96,7 +98,7 @@ for e in range(epochs):
 
         loss.backward()
 
-        scheduler.step()
+        optimizer.step()
 
         train_loss += loss.item()
 
@@ -123,11 +125,6 @@ for e in range(epochs):
             print("Epoch: {}/{}.. ".format(e+1, epochs),
               "Training Loss: {:.3f}.. ".format(train_losses[-1]),
               "Test Loss: {:.3f}.. ".format(validation_losses[-1]))
-
-torch.save({
-    'epoch': 10,
-    'model_state_dict' : model.state_dict(),
-    'optimizer_state_dict' : optimizer.state_dict(),
-    'loss' : loss
-},'model.pth')
+    
+    scheduler.step()
 # %%
