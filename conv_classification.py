@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 from custom_dataset import CustomDataset
-from network import Network
+from network_classification import Network_classification
 import torch
 from torch.optim.lr_scheduler import StepLR
 
@@ -60,7 +60,7 @@ test_loader = DataLoader(data,batch_size = batch_size,
                             sampler = test_sampler, num_workers=num_workers)
 # %%
 
-model = Network()
+model = Network_classification()
 train_on_gpu = torch.cuda.is_available()
 
 if train_on_gpu:
@@ -70,19 +70,19 @@ else:
     print('GPU Not available')
 
 #%%
-criterion = nn.MSELoss()
+criterion = nn.NLLLoss(reduction='sum')
 optimizer = optim.SGD(model.parameters(),lr=0.003)
 
 scheduler = StepLR(optimizer, step_size=10, gamma=0.3)
 
-epochs = 150
+epochs = 75
 
 train_losses, validation_losses = [],[]
 
 print('Starting to Train...')
 
 for e in range(epochs):
-
+    model.train()
     train_loss = 0
     for imgs,labels in train_loader:
 
@@ -92,9 +92,12 @@ for e in range(epochs):
         
         optimizer.zero_grad()
 
-        output = model(torch.unsqueeze(imgs,1).float())
+        log_ps = model(torch.unsqueeze(imgs,1).float())
+        
+        #print(log_ps)
+        #print(labels.long())
 
-        loss = criterion(output,torch.unsqueeze(labels,1).float())
+        loss = criterion(log_ps,labels.long())
 
         loss.backward()
 
@@ -104,6 +107,7 @@ for e in range(epochs):
 
     else:
         validation_loss = 0
+        accuracy = 0
         with torch.no_grad():
             model.eval()
             for imgs,labels in valid_loader:
@@ -111,20 +115,24 @@ for e in range(epochs):
                     imgs = imgs.cuda()
                     labels = labels.cuda()
                 
-                pred = model(torch.unsqueeze(imgs,1).float())
+                log_ps = model(torch.unsqueeze(imgs,1).float())
 
-                loss = criterion(pred,torch.unsqueeze(labels,1))
-
+                loss = criterion(log_ps,labels.long())
+                #print(loss.shape)
                 validation_loss += loss.item()
-                
-            model.train()
-            
+
+                ps = torch.exp(log_ps)
+                top_p, top_class = ps.topk(1,dim=1)
+                equals = labels == top_class[:,0]
+                accuracy += torch.mean(equals.type(torch.FloatTensor))
+
             train_losses.append(train_loss/len(train_loader))
             validation_losses.append(validation_loss/len(valid_loader))
 
             print("Epoch: {}/{}.. ".format(e+1, epochs),
               "Training Loss: {:.3f}.. ".format(train_losses[-1]),
-              "Test Loss: {:.3f}.. ".format(validation_losses[-1]))
+              "Validation Loss: {:.3f}.. ".format(validation_losses[-1]),
+              "Validation accuracy: {:.3f}".format(accuracy/len(valid_loader)))
     
-    #scheduler.step()
+    scheduler.step()
 # %%
