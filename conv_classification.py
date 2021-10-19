@@ -23,7 +23,7 @@ print(sys.prefix)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 20
+batch_size = 22
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
@@ -73,7 +73,7 @@ else:
 criterion = nn.NLLLoss(reduction='sum')
 optimizer = optim.SGD(model.parameters(),lr=0.003)
 
-scheduler = StepLR(optimizer, step_size=10, gamma=0.3)
+scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
 
 epochs = 75
 
@@ -134,5 +134,5 @@ for e in range(epochs):
               "Validation Loss: {:.3f}.. ".format(validation_losses[-1]),
               "Validation accuracy: {:.3f}".format(accuracy/len(valid_loader)))
     
-    scheduler.step()
+    #scheduler.step()
 # %%

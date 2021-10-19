@@ -27,10 +27,15 @@ class CustomDataset(Dataset):
         self.vars = pd.read_csv(path+label_file,index_col='eid',
                             usecols=['eid','neuroticism_score_f20127_0_0'])
         self.vars.columns = ['neuroticism_score']
+        self.vars['neuroticism_score'] = self.vars['neuroticism_score'] + 1 
+        
+        # Applying log transform
+        self.vars = self.vars.apply(np.log,axis=1)
+
         #self.vars['neuroticism_score'] = SimpleImputer(strategy='mean',
         #                       missing_values=np.nan).fit_transform(self.vars)
         
-        #computing the missing scores 
+        #computing the missing scores, i.e. scores are NaN 
         self.misssing_scores = self.vars[self.vars['neuroticism_score']
                                         .isnull()].index
         self.dirs = list(set(self.dirs) - set(self.misssing_scores) )

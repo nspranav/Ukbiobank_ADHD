@@ -6,3 +6,5 @@
 err*
 out*
 model.pth
+reg_train.png
+reg_valid.png

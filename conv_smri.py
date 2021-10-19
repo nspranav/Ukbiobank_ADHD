@@ -23,7 +23,7 @@ print(sys.prefix)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 20
+batch_size = 15
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
@@ -53,11 +53,11 @@ valid_sampler = SubsetRandomSampler(valid_idx)
 test_sampler = SubsetRandomSampler(test_idx)
 
 train_loader = DataLoader(data,batch_size=batch_size, 
-                            sampler= train_sampler, num_workers=num_workers)
+                            sampler= train_sampler)
 valid_loader = DataLoader(data,batch_size=batch_size, 
-                            sampler= valid_sampler, num_workers=num_workers)
+                            sampler= valid_sampler)
 test_loader = DataLoader(data,batch_size = batch_size, 
-                            sampler = test_sampler, num_workers=num_workers)
+                            sampler = test_sampler)
 # %%
 
 model = Network()
@@ -71,9 +71,9 @@ else:
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.003)
+optimizer = optim.SGD(model.parameters(),lr=0.005)
 
-scheduler = StepLR(optimizer, step_size=10, gamma=0.3)
+scheduler = StepLR(optimizer, step_size=20, gamma=0.3)
 
 epochs = 150
 
@@ -81,10 +81,20 @@ train_losses, validation_losses = [],[]
 
 print('Starting to Train...')
 
-for e in range(epochs):
+pred_train = np.array([])
+pred_validation = np.array([])
+labels_train = np.array([])
+labels_validation = np.array([])
 
+for e in range(epochs):
+    model.train()
     train_loss = 0
+
+    # array used for storing predicted values of train and test
+
     for imgs,labels in train_loader:
+        
+        labels_train = np.append(labels_train,labels)
 
         if train_on_gpu:
             imgs = imgs.cuda()
@@ -93,6 +103,10 @@ for e in range(epochs):
         optimizer.zero_grad()
 
         output = model(torch.unsqueeze(imgs,1).float())
+
+        #values used for plotting
+        pred_train = np.append(pred_train,output.cpu().detach()
+                                        .numpy().reshape((-1,)))
 
         loss = criterion(output,torch.unsqueeze(labels,1).float())
 
@@ -107,17 +121,22 @@ for e in range(epochs):
         with torch.no_grad():
             model.eval()
             for imgs,labels in valid_loader:
+
+                labels_validation = np.append(labels_validation,labels)
+
                 if train_on_gpu:
                     imgs = imgs.cuda()
                     labels = labels.cuda()
                 
                 pred = model(torch.unsqueeze(imgs,1).float())
 
+                pred_validation = np.append(pred_validation,pred.cpu().detach()
+                                        .numpy().reshape((-1,)))
+
                 loss = criterion(pred,torch.unsqueeze(labels,1))
 
                 validation_loss += loss.item()
                 
-            model.train()
             
             train_losses.append(train_loss/len(train_loader))
             validation_losses.append(validation_loss/len(valid_loader))
@@ -126,5 +145,23 @@ for e in range(epochs):
               "Training Loss: {:.3f}.. ".format(train_losses[-1]),
               "Test Loss: {:.3f}.. ".format(validation_losses[-1]))
     
-    #scheduler.step()
+    scheduler.step()
+
+#plotting values
+from matplotlib import pyplot as plt
+
+plt.plot(labels_train,pred_train,'.g')
+plt.xlabel('Actual')
+plt.ylabel('Predicted')
+plt.show()
+plt.savefig('reg_train.png')
+
+plt.clf()
+
+plt.plot(labels_validation,pred_validation,'.r')
+plt.xlabel('Actual')
+plt.ylabel('Predicted')
+plt.show()
+plt.savefig('reg_valid.png')
+
 # %%
