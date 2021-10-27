@@ -9,7 +9,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from custom_dataset import CustomDataset
 from network import Network
 import torch
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
 #%%
@@ -23,7 +23,7 @@ print(sys.prefix)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 15
+batch_size = 20
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
@@ -71,9 +71,9 @@ else:
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.005)
+optimizer = optim.SGD(model.parameters(),lr=0.01)
 
-scheduler = StepLR(optimizer, step_size=20, gamma=0.3)
+scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True)
 
 epochs = 150
 
@@ -95,7 +95,7 @@ for e in range(epochs):
     for imgs,labels in train_loader:
         
         labels_train = np.append(labels_train,labels)
-
+        model.train()
         if train_on_gpu:
             imgs = imgs.cuda()
             labels = labels.cuda()
@@ -145,23 +145,23 @@ for e in range(epochs):
               "Training Loss: {:.3f}.. ".format(train_losses[-1]),
               "Test Loss: {:.3f}.. ".format(validation_losses[-1]))
     
-    scheduler.step()
+    #scheduler.step(validation_losses[-1])
 
 #plotting values
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
-plt.plot(labels_train,pred_train,'.g')
-plt.xlabel('Actual')
-plt.ylabel('Predicted')
-plt.show()
-plt.savefig('reg_train.png')
+# plt.plot(labels_train,pred_train,'.g')
+# plt.xlabel('Actual')
+# plt.ylabel('Predicted')
+# plt.show()
+# plt.savefig('reg_train.png')
 
-plt.clf()
+# plt.clf()
 
-plt.plot(labels_validation,pred_validation,'.r')
-plt.xlabel('Actual')
-plt.ylabel('Predicted')
-plt.show()
-plt.savefig('reg_valid.png')
+# plt.plot(labels_validation,pred_validation,'.r')
+# plt.xlabel('Actual')
+# plt.ylabel('Predicted')
+# plt.show()
+# plt.savefig('reg_valid.png')
 
 # %%

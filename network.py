@@ -29,19 +29,19 @@ class Network(nn.Module):
         self.avgpool = nn.AvgPool3d(3)
         
     def forward(self, img):
-        img = self.bn1(F.relu(self.pool(self.cv1(img))))
-        img = self.bn2(F.relu(self.pool(self.cv2(img))))
-        img = self.bn3(F.relu(self.pool(self.cv3(img)))) 
-        img = self.avgpool(F.relu(self.bn4(self.cv4(img))))
+        img = F.relu(self.pool(self.cv1(img)))
+        img = F.relu(self.pool(self.cv2(img)))
+        img = F.relu(self.pool(self.cv3(img))) 
+        img = self.avgpool(F.relu(self.cv4(img)))
         #img = self.avgpool(F.relu(self.bn5(self.cv5(img))))
         #img = self.pool(F.relu(self.bn6(self.cv6(img))))
         #img = self.cv7(self.dropout(self.avgpool(img)))
 
         img = img.view(img.shape[0], -1)
         #img = self.dropout5(F.relu(self.fc1(img)))
-        img = self.dropout5(F.relu(self.fc2(img)))
-        img = self.dropout(F.relu(self.fc3(img)))
-        img = self.dropout(F.relu(self.fc4(img)))
+        img = F.relu(self.fc2(img))
+        img = F.relu(self.fc3(img))
+        img = F.relu(self.fc4(img))
 
 
         return img
