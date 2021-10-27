@@ -145,7 +145,7 @@ for e in range(epochs):
               "Training Loss: {:.3f}.. ".format(train_losses[-1]),
               "Test Loss: {:.3f}.. ".format(validation_losses[-1]))
     
-    #scheduler.step(validation_losses[-1])
+    scheduler.step(validation_losses[-1])
 
 #plotting values
 # from matplotlib import pyplot as plt
