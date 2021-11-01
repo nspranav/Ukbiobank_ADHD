@@ -19,7 +19,7 @@ import torch
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 2
+batch_size = 23
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
@@ -56,18 +56,16 @@ test_loader = DataLoader(data,batch_size = batch_size,
                             sampler = test_sampler, num_workers=num_workers)
 # %%
 
-model = Network()
-train_on_gpu = torch.cuda.is_available()
 
-if train_on_gpu:
-    print('GPU is available')
-    model.cuda()
-else:
-    print('GPU Not available')
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("Using {} device".format(device))
+
+model = Network().to(device)
+
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.0001)
+optimizer = optim.SGD(model.parameters(),lr=0.003)
 
 
 epochs = 50
@@ -76,54 +74,41 @@ train_losses, validation_losses = [],[]
 print('Starting to Train...')
 
 for e in range(epochs):
-
+    model.train()
     train_loss = 0
-    for imgs,labels in train_loader:
 
-        if train_on_gpu:
-            imgs = imgs.cuda()
-            labels = labels.cuda()
-        
+    for X,y in train_loader:
+
+        X,y = X.to(device),y.to(device)
+
+        pred = model(torch.unsqueeze(X,1).float())
+        loss = criterion(pred,torch.unsqueeze(y,1).float())
+
         optimizer.zero_grad()
-
-        output = model(torch.unsqueeze(imgs,1).float())
-
-        loss = criterion(output,torch.unsqueeze(labels,1).float())
-
         loss.backward()
-
         optimizer.step()
 
         train_loss += loss.item()
-
     else:
-        validation_loss = 0
+        model.eval()
+        valid_loss = 0
         with torch.no_grad():
-            model.eval()
-            for imgs,labels in valid_loader:
-                if train_on_gpu:
-                    imgs = imgs.cuda()
-                    labels = labels.cuda()
-                
-                pred = model(torch.unsqueeze(imgs,1).float())
+            for X,y in valid_loader:
+                X,y = X.to(device),y.to(device)
 
-                loss = criterion(pred,torch.unsqueeze(labels,1))
+                pred = model(torch.unsqueeze(X,1).float())
+                loss = criterion(pred,torch.unsqueeze(y,1).float())
 
-                validation_loss += loss.item()
-                
-            model.train()
+                valid_loss += loss.item()
+
             
-            train_losses.append(train_loss/len(train_loader))
-            validation_losses.append(validation_loss/len(valid_loader))
+        print("Epoch {}/{}".format(e+1,epochs),
+                "train loss = {:.5f}".format(train_loss/len(train_loader)),
+                "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
 
-            print("Epoch: {}/{}.. ".format(e+1, epochs),
-              "Training Loss: {:.3f}.. ".format(train_losses[-1]),
-              "Test Loss: {:.3f}.. ".format(validation_losses[-1]))
 
-torch.save({
-    'epoch': 10,
-    'model_state_dict' : model.state_dict(),
-    'optimizer_state_dict' : optimizer.state_dict(),
-    'loss' : loss
-},'model.pth')
+
+
+    
+
 # %%

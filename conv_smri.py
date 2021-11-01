@@ -71,9 +71,9 @@ else:
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.01)
+optimizer = optim.SGD(model.parameters(),lr=0.001)
 
-scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True)
+#scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True)
 
 epochs = 150
 
@@ -81,10 +81,6 @@ train_losses, validation_losses = [],[]
 
 print('Starting to Train...')
 
-pred_train = np.array([])
-pred_validation = np.array([])
-labels_train = np.array([])
-labels_validation = np.array([])
 
 for e in range(epochs):
     model.train()
@@ -94,35 +90,33 @@ for e in range(epochs):
 
     for imgs,labels in train_loader:
         
-        labels_train = np.append(labels_train,labels)
-        model.train()
+        #labels_train = np.append(labels_train,labels)
+
         if train_on_gpu:
             imgs = imgs.cuda()
             labels = labels.cuda()
-        
-        optimizer.zero_grad()
+    
 
         output = model(torch.unsqueeze(imgs,1).float())
 
         #values used for plotting
-        pred_train = np.append(pred_train,output.cpu().detach()
-                                        .numpy().reshape((-1,)))
+        #pred_train = np.append(pred_train,output.cpu().detach()
+        #                                .numpy().reshape((-1,)))
 
         loss = criterion(output,torch.unsqueeze(labels,1).float())
 
+        optimizer.zero_grad()
         loss.backward()
-
         optimizer.step()
 
         train_loss += loss.item()
 
     else:
         validation_loss = 0
+        model.eval()
         with torch.no_grad():
-            model.eval()
             for imgs,labels in valid_loader:
 
-                labels_validation = np.append(labels_validation,labels)
 
                 if train_on_gpu:
                     imgs = imgs.cuda()
@@ -130,8 +124,8 @@ for e in range(epochs):
                 
                 pred = model(torch.unsqueeze(imgs,1).float())
 
-                pred_validation = np.append(pred_validation,pred.cpu().detach()
-                                        .numpy().reshape((-1,)))
+                #pred_validation = np.append(pred_validation,pred.cpu().detach()
+                #                        .numpy().reshape((-1,)))
 
                 loss = criterion(pred,torch.unsqueeze(labels,1))
 
@@ -145,7 +139,7 @@ for e in range(epochs):
               "Training Loss: {:.3f}.. ".format(train_losses[-1]),
               "Test Loss: {:.3f}.. ".format(validation_losses[-1]))
     
-    scheduler.step(validation_losses[-1])
+    #scheduler.step(validation_losses[-1])
 
 #plotting values
 # from matplotlib import pyplot as plt

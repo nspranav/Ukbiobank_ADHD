@@ -27,10 +27,10 @@ class CustomDataset(Dataset):
         self.vars = pd.read_csv(path+label_file,index_col='eid',
                             usecols=['eid','neuroticism_score_f20127_0_0'])
         self.vars.columns = ['neuroticism_score']
-        self.vars['neuroticism_score'] = self.vars['neuroticism_score'] + 1 
+        #self.vars['neuroticism_score'] = self.vars['neuroticism_score'] + 1 
         
         # Applying log transform
-        self.vars = self.vars.apply(np.log,axis=1)
+        #self.vars = self.vars.apply(np.log,axis=1)
 
         #self.vars['neuroticism_score'] = SimpleImputer(strategy='mean',
         #                       missing_values=np.nan).fit_transform(self.vars)
@@ -45,7 +45,7 @@ class CustomDataset(Dataset):
 
     
     def __len__(self):
-        return 8000
+        return 12000
 
     def __getitem__(self,idx):
         try:
