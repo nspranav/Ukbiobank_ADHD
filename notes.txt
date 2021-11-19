@@ -1,0 +1,32 @@
+Increasing the number of output channels has no effect 
+
+Increasing the batch size helps in training - upto 35 on GPU; 
+        -> need to test on CPU with more batch size
+
+Does increasing the LR has any effect? - no effect between 0.01 - 0.0001
+    - Increase more 1e-2? No effect
+
+Does increasing the dropout probability decresae overfitting? - 
+    -Underfitting with 50% prob on 2 layers
+
+WHat if dropout is removed completely? checking - Not learning
+
+Check the models predictions for every 5 epochs and visulaize the 
+    model performace - Training is learning but the validation doesn't change
+
+
+Data augmentation:
+    - Mirroring of left right - Training OK but validation doesn't change
+    - 1 or 2 pixel random shift - Testing
+    
+Decreasing number of output channels - Do not help as well
+
+Residual network; 
+
+Try Tensor board; 
+
+FC layers max of 1 
+
+
+
+

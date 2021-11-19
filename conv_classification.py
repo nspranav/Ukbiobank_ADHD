@@ -18,7 +18,6 @@ from torch.optim.lr_scheduler import StepLR
 # Loading the Data #####
 ########################
 
-print(sys.prefix)
 
 # number of subprocesses to use for data loading
 num_workers = 4

@@ -9,8 +9,6 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from custom_dataset import CustomDataset
 from network import Network
 import torch
-from torch.optim.lr_scheduler import ReduceLROnPlateau
-
 
 #%%
 
