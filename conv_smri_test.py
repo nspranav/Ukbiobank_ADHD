@@ -20,7 +20,7 @@ import pickle
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 30
+batch_size = 3
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
@@ -67,7 +67,7 @@ model = Network().to(device)
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.007)
+optimizer = optim.SGD(model.parameters(),lr=0.0003)
 
 
 epochs = 100
