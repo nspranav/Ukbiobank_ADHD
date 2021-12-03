@@ -15,7 +15,7 @@ class Network(nn.Module):
         self.cv4 = nn.Conv3d(256, 512, 3,stride=1, padding=0)
         self.bn4 = nn.BatchNorm3d(512)
         self.cv5 = nn.Conv3d(512, 512, 3,stride=1, padding=0)
-        self.bn5 = nn.BatchNorm3d(256)
+        self.bn5 = nn.BatchNorm3d(512)
         self.cv6 = nn.Conv3d(128, 128, 1,stride=1, padding=0)
         self.bn6 = nn.BatchNorm3d(256)
         self.cv7 = nn.Conv3d(64,64,1) 
@@ -30,9 +30,7 @@ class Network(nn.Module):
         self.dropout5 = nn.Dropout(0.5)
         self.avgpool = nn.AvgPool3d(3)
 
-        self.layer1 = nn.Sequential(nn.Conv3d(1, 32, 3, stride=1, padding=1),
-                                    nn.MaxPool3d(2), nn.ReLU(),
-                                    nn.BatchNorm3d(32))
+        self.layer1 = nn.Sequential(self.cv1,self.pool,nn.ReLU(),self.bn1)
         self.layer2 = nn.Sequential(self.cv2,self.pool,nn.ReLU(),self.bn2)
 
         self.layer3 = nn.Sequential(self.cv3,self.pool,nn.ReLU(),self.bn3)
@@ -52,7 +50,7 @@ class Network(nn.Module):
         #img = F.relu(self.cv7(self.dropout(self.avgpool(img))))
 
         img = img.view(img.shape[0], -1)
-        img = self.dropout(F.relu(self.fc1(img)))
+        img = self.dropout(self.fc1(img))
         #img = self.dropout(F.relu(self.fc2(img)))
         #img = self.dropout(F.relu(self.fc3(img)))
         #img = self.dropout(F.relu(self.fc4(img)))
