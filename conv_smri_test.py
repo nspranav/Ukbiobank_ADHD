@@ -20,7 +20,7 @@ import pickle
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 15
+batch_size = 5
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
@@ -62,12 +62,13 @@ test_loader = DataLoader(data,batch_size = batch_size,
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using {} device".format(device))
 
-model = Network().to(device)
+model = Network()
+#.to(device)
 
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.01)
+optimizer = optim.SGD(model.parameters(),lr=0.001)
 
 
 epochs = 100
