@@ -42,7 +42,7 @@ if not os.path.exists(path):
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 25
+batch_size = 30
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
