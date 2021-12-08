@@ -2,9 +2,8 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 5
-#SBATCH --mem=64g
-#SBATCH --gres=gpu:v100:1
-#SBATCH -p qTRDGPUH
+#SBATCH --mem=120g
+#SBATCH -p qTRD
 #SBATCH -t 7680
 #SBATCH -J ConvLr00001
 #SBATCH -e error%A.err
@@ -16,5 +15,5 @@
 
 
 source /home/users/pnadigapusuresh1/anaconda3/bin/activate CV2
-python conv_smri_test.py ${SLURM_JOBID}
+python conv_smri_test.py
 

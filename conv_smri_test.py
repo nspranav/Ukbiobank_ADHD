@@ -1,4 +1,5 @@
 #%%
+from genericpath import exists
 import numpy as np
 from numpy.core.numeric import indices
 from torch import nn, optim
@@ -9,6 +10,27 @@ from custom_dataset import CustomDataset
 from network import Network
 import torch
 import pickle
+import argparse
+import os
+
+#%%
+
+parser = argparse.ArgumentParser()
+parser.add_argument('job_id',type=str)
+args = parser.parse_args()
+print(args.job_id)
+
+#creating directory
+
+directory = args.job_id
+parent_directory = '/data/users2/pnadigapusuresh1/JobOutputs'
+path = os.path.join(parent_directory,directory)
+
+if not os.path.exists(path):
+    os.mkdir(path)
+
+
+
 
 #%%
 
@@ -20,7 +42,7 @@ import pickle
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 5
+batch_size = 25
 # percentage of training set to use as validation
 valid_size = 0.1
 # percentage of data to be used for testset
@@ -62,13 +84,12 @@ test_loader = DataLoader(data,batch_size = batch_size,
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using {} device".format(device))
 
-model = Network()
-#.to(device)
+model = Network().to(device)
 
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.001)
+optimizer = optim.SGD(model.parameters(),lr=0.003)
 
 
 epochs = 100
@@ -135,7 +156,7 @@ for e in range(1,epochs+1):
         }
 
         if e%5 == 0:
-            with open('arrays'+str(e)+'.pk','wb') as f:
+            with open(path +'/arrays'+str(e)+'.pk','wb') as f:
                 pickle.dump(values,f)
 
         print("Epoch {}/{}".format(e,epochs),
