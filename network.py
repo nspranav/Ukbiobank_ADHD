@@ -28,6 +28,7 @@ class Network(nn.Module):
         self.fc6 = nn.Linear(16,1)
         self.dropout = nn.Dropout(0.2)
         self.dropout5 = nn.Dropout(0.5)
+        self.dropout1 = nn.Dropout(0.1)
         self.avgpool = nn.AvgPool3d(3)
 
         self.layer1 = nn.Sequential(self.cv1,self.pool,nn.ReLU(),self.bn1)
