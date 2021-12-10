@@ -44,9 +44,9 @@ num_workers = 4
 # how many samples per batch to load
 batch_size = 30
 # percentage of training set to use as validation
-valid_size = 0.1
+valid_size = 0.50
 # percentage of data to be used for testset
-test_size = 0.05
+test_size = 0.10
 
 
 data = CustomDataset(transform = 
