@@ -1,5 +1,4 @@
 #%%
-from genericpath import exists
 import numpy as np
 from numpy.core.numeric import indices
 from torch import nn, optim
