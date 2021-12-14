@@ -24,8 +24,8 @@ class Network(nn.Module):
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256,512)
         self.fc4 = nn.Linear(512,1024)
-        self.fc5 = nn.Linear(1024,1)
-        self.fc6 = nn.Linear(16,1)
+        self.fc5 = nn.Linear(1024,512)
+        self.fc6 = nn.Linear(512,1)
         self.dropout = nn.Dropout(0.2)
         self.dropout5 = nn.Dropout(0.5)
         self.dropout1 = nn.Dropout(0.1)
@@ -44,6 +44,7 @@ class Network(nn.Module):
         img = self.layer3(img)
         img = self.layer4(img)
         img = self.layer5(img)
+
         #img = F.relu(self.pool(self.cv6(img)))
         #img = F.relu(self.cv7(self.dropout(self.avgpool(img))))
 
@@ -53,7 +54,7 @@ class Network(nn.Module):
         img = self.fc3(img)
         img = self.fc4(img)
         img = self.fc5(img)
-
+        img = self.fc6(img)
 
         #img = self.dropout(F.relu(self.fc3(img)))
         #img = self.dropout(F.relu(self.fc4(img)))
