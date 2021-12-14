@@ -21,7 +21,7 @@ class Network(nn.Module):
         self.cv7 = nn.Conv3d(64,64,1) 
         self.pool = nn.MaxPool3d(2)
         self.fc1 = nn.Linear(1024, 512)
-        self.fc2 = nn.Linear(512, 1024)
+        self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256,512)
         self.fc4 = nn.Linear(512,1024)
         self.fc5 = nn.Linear(1024,1)
@@ -50,6 +50,8 @@ class Network(nn.Module):
         img = img.view(img.shape[0], -1)
         img = self.fc1(img)
         img = self.fc2(img)
+        img = self.fc3(img)
+        img = self.fc4(img)
         img = self.fc5(img)
 
 

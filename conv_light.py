@@ -1,5 +1,5 @@
 #%%
-import pytorch-lightning as pl
+import pytorch_lightning as pl
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -62,4 +62,14 @@ class Network(pl.LightningModule):
         X, y = batch
         pred = self(torch.unsqueeze(X,1).float())
         loss = F.mse_loss(pred,torch.unsqueeze(y,1).float())
-        
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        return loss
+    
+    def validation_step(self, val_batch, batch_idx):
+        X, y = val_batch
+        pred = self(torch.unsqueeze(X,1).float())
+        loss = F.mse_loss(pred,torch.unsqueeze(y,1).float())
+        self.log("validation_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+    
+
+
