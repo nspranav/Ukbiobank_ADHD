@@ -39,11 +39,11 @@ class Network(nn.Module):
 
     def forward(self, img):
 
-        img = self.layer1(img)
-        img = self.layer2(img)
-        img = self.layer3(img)
-        img = self.layer4(img)
-        img = self.layer5(img)
+        img = self.dropout(self.layer1(img))
+        img = self.dropout(self.layer2(img))
+        img = self.dropout(self.layer3(img))
+        img = self.dropout(self.layer4(img))
+        img = self.dropout(self.layer5(img))
 
         #img = F.relu(self.pool(self.cv6(img)))
         #img = F.relu(self.cv7(self.dropout(self.avgpool(img))))

@@ -47,8 +47,8 @@ class Network(pl.LightningModule):
         img = self.layer5(img)
 
         img = img.view(img.shape[0], -1)
-        img = self.dropout1(self.fc1(img))
-        img = self.dropout5(self.fc2(img))
+        img = self.fc1(img)
+        img = self.fc2(img)
 
         return img
     
