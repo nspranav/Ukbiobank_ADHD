@@ -13,7 +13,7 @@ import random
 class CustomDataset(Dataset):
     
     def __init__(self,img_path= '/data/qneuromark/Data/UKBiobank/Data_BIDS/Raw_Data'
-                    ,label_file= 'subset_vars.csv',transform=None, target_transform=None):
+                    ,label_file= 'subset_vars.csv',transform=None, target_transform=None,train=True):
         path = '/data/users2/pnadigapusuresh1/Projects/ukbiobank/Data/'
         self.img_path = img_path
         self.dirs = os.listdir(img_path)
@@ -45,6 +45,7 @@ class CustomDataset(Dataset):
 
         self.transform = transform
         self.target_transform = target_transform
+        self.train = train
 
     
     def __len__(self):
@@ -61,57 +62,60 @@ class CustomDataset(Dataset):
 
         ########################################
         #transforms to be done on every image with probability of 0.5
-        img = torch.tensor(img)
 
-        p = random.random()
-        if p > 0.5:
-            t = transforms.Pad((1,1,1,1),0)
-            
-            choice = random.choice([-2,-1,1,2])
+        if self.train:
+            img = torch.tensor(img)
 
-            if choice == -2:
-                img = t(img)
-                img = t(img)
+            p = random.random()
+            if p > 0.5:
+                t = transforms.Pad((1,1,1,1),0)
+                
+                choice = random.choice([-2,-1,1,2])
 
-                img = img[:,:-4,:-4]
+                if choice == -2:
+                    img = t(img)
+                    img = t(img)
 
-                tmp = torch.zeros((2,145,121))
+                    img = img[:,:-4,:-4]
 
-                img = torch.cat((img,tmp),0)
+                    tmp = torch.zeros((2,145,121))
 
-                img = img[2:,:,:]
+                    img = torch.cat((img,tmp),0)
+
+                    img = img[2:,:,:]
 
 
-            elif choice == -1:
-                img = t(img)
-                tmp = torch.zeros((2,145,121))
-                img = img[:,:-2,:-2]
+                elif choice == -1:
+                    img = t(img)
+                    tmp = torch.zeros((2,145,121))
+                    img = img[:,:-2,:-2]
 
-                tmp = torch.zeros((1,145,121))
-                img = torch.cat((img,tmp),0)
-                img = img[1:,:,:]
-            
-            elif choice == 1:
-                img = t(img)
+                    tmp = torch.zeros((1,145,121))
+                    img = torch.cat((img,tmp),0)
+                    img = img[1:,:,:]
+                
+                elif choice == 1:
+                    img = t(img)
 
-                img = img[:,2:,2:]
+                    img = img[:,2:,2:]
 
-                tmp = torch.zeros((1,145,121))
-                img = torch.cat((tmp,img),0)
-                img = img[:-1,:,:]
-            
-            elif choice == 2:
-                img = t(img)
-                img = t(img)
+                    tmp = torch.zeros((1,145,121))
+                    img = torch.cat((tmp,img),0)
+                    img = img[:-1,:,:]
+                
+                elif choice == 2:
+                    img = t(img)
+                    img = t(img)
 
-                img = img[:,4:,4:]
+                    img = img[:,4:,4:]
 
-                tmp = torch.zeros((2,145,121))
-                img = torch.cat((img,tmp),0)
-                img = img[:-2,:,:]
+                    tmp = torch.zeros((2,145,121))
+                    img = torch.cat((img,tmp),0)
+                    img = img[:-2,:,:]
  
 
             #########################################
+            
         if self.transform:
             img = self.transform(img)
         if self.target_transform:

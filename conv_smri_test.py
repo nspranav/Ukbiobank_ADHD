@@ -48,15 +48,16 @@ valid_size = 0.50
 test_size = 0.10
 
 
-data = CustomDataset(transform = 
+train_data = CustomDataset(transform = 
                         transforms.Compose([
                             transforms.RandomHorizontalFlip()
-                            ]))
+                            ]),train = True)
 
+valid_data = CustomDataset(train = False)
 
 # obtaining indices that will be used for train, validation, and test
 
-num_train = len(data)
+num_train = len(train_data)
 indices = list(range(num_train))
 np.random.shuffle(indices)
 test_split = int(np.floor(test_size * num_train))
@@ -71,11 +72,11 @@ train_sampler = SubsetRandomSampler(train_idx)
 valid_sampler = SubsetRandomSampler(valid_idx)
 test_sampler = SubsetRandomSampler(test_idx)
 
-train_loader = DataLoader(data,batch_size=batch_size, 
+train_loader = DataLoader(train_data,batch_size=batch_size, 
                             sampler= train_sampler, num_workers=num_workers)
-valid_loader = DataLoader(data,batch_size=batch_size, 
+valid_loader = DataLoader(valid_data,batch_size=batch_size, 
                             sampler= valid_sampler, num_workers=num_workers)
-test_loader = DataLoader(data,batch_size = batch_size, 
+test_loader = DataLoader(valid_data,batch_size = batch_size, 
                             sampler = test_sampler, num_workers=num_workers)
 # %%
 
