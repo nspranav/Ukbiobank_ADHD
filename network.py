@@ -31,11 +31,11 @@ class Network(nn.Module):
         self.dropout1 = nn.Dropout(0.1)
         self.avgpool = nn.AvgPool3d(3)
 
-        self.layer1 = nn.Sequential(self.cv1,self.pool,nn.ReLU(),self.bn1)
-        self.layer2 = nn.Sequential(self.cv2,self.pool,nn.ReLU(),self.bn2)
-        self.layer3 = nn.Sequential(self.cv3,self.pool,nn.ReLU(),self.bn3)
-        self.layer4 = nn.Sequential(self.cv4,self.pool,nn.ReLU(),self.bn4)
-        self.layer5 = nn.Sequential(self.cv5,self.pool,nn.ReLU(),self.bn5)
+        self.layer1 = nn.Sequential(self.cv1,self.pool,nn.ReLU())
+        self.layer2 = nn.Sequential(self.cv2,self.pool,nn.ReLU())
+        self.layer3 = nn.Sequential(self.cv3,self.pool,nn.ReLU())
+        self.layer4 = nn.Sequential(self.cv4,self.pool,nn.ReLU())
+        self.layer5 = nn.Sequential(self.cv5,self.pool,nn.ReLU())
 
     def forward(self, img):
 
