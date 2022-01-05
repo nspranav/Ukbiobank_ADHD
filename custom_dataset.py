@@ -28,7 +28,7 @@ class CustomDataset(Dataset):
 
         self.dirs = np.array(self.dirs,dtype=np.int)
         self.vars = pd.read_csv(path+label_file,index_col='eid',
-                            usecols=['eid','neuroticism_score_f20127_0_0'])
+                            usecols=['eid','age_when_attended_assessment_centre_f21003_0_0'])
         self.vars.columns = ['neuroticism_score']
         #self.vars['neuroticism_score'] = self.vars['neuroticism_score'] + 1 
         
@@ -38,9 +38,11 @@ class CustomDataset(Dataset):
         #self.vars['neuroticism_score'] = SimpleImputer(strategy='mean',
         #                       missing_values=np.nan).fit_transform(self.vars)
         
-        #computing the missing scores, i.e. scores are NaN 
+
         self.misssing_scores = self.vars[self.vars['neuroticism_score']
                                         .isnull()].index
+
+        
         self.dirs = list(set(self.dirs) - set(self.misssing_scores) )
 
         self.transform = transform
@@ -49,13 +51,15 @@ class CustomDataset(Dataset):
 
     
     def __len__(self):
-        return len(self.dirs)
+        return 8000
 
     def __getitem__(self,idx):
         try:
+            ses2 = False
             img = nib.load(os.path.join(self.img_path,str(self.dirs[idx])
                             ,'ses_01/anat/Sm6mwc1pT1.nii.nii')).get_fdata()
         except OSError:
+            ses2 = True
             img = nib.load(os.path.join(self.img_path,str(self.dirs[idx])
                             ,'ses_02/anat/Sm6mwc1pT1.nii.nii')).get_fdata()
         label = self.vars.loc[self.dirs[idx]].values[0]
