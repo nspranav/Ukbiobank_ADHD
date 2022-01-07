@@ -116,6 +116,7 @@ for e in range(1,epochs+1):
         X,y = X.to(device),y.to(device)
 
         optimizer.zero_grad()
+        
 
         pred = model(torch.unsqueeze(X,1).float())
 

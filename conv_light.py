@@ -1,8 +1,16 @@
 #%%
+import argparse
+import os
+import numpy as np
 import pytorch_lightning as pl
 import torch
 from torch import nn
 from torch.nn import functional as F
+from torch.utils.data.dataloader import DataLoader
+from torch.utils.data.sampler import SubsetRandomSampler
+from torchvision import transforms
+
+from custom_dataset import CustomDataset
 
 class Network(pl.LightningModule):
 
@@ -72,4 +80,72 @@ class Network(pl.LightningModule):
         self.log("validation_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
     
 
+#%%
 
+parser = argparse.ArgumentParser()
+parser.add_argument('job_id',type=str)
+args = parser.parse_args()
+print(args.job_id)
+
+#creating directory
+
+directory = args.job_id
+parent_directory = '/data/users2/pnadigapusuresh1/JobOutputs'
+path = os.path.join(parent_directory,directory)
+
+if not os.path.exists(path):
+    os.mkdir(path)
+
+
+
+
+#%%
+
+########################
+# Loading the Data #####
+########################
+
+
+# number of subprocesses to use for data loading
+num_workers = 4
+# how many samples per batch to load
+batch_size = 30
+# percentage of training set to use as validation
+valid_size = 0.50
+# percentage of data to be used for testset
+test_size = 0.10
+
+
+train_data = CustomDataset(transform = 
+                        transforms.Compose([
+                            transforms.RandomHorizontalFlip()
+                            ]),train = True)
+
+valid_data = CustomDataset(train = False)
+
+# obtaining indices that will be used for train, validation, and test
+
+num_train = len(train_data)
+indices = list(range(num_train))
+np.random.shuffle(indices)
+test_split = int(np.floor(test_size * num_train))
+test_idx, train_idx = indices[: test_split], indices[test_split : ]
+
+train_rem = len(train_idx)
+valid_spilt = int(np.floor(valid_size * train_rem))
+
+valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
+
+train_sampler = SubsetRandomSampler(train_idx)
+valid_sampler = SubsetRandomSampler(valid_idx)
+test_sampler = SubsetRandomSampler(test_idx)
+
+train_loader = DataLoader(train_data,batch_size=batch_size, 
+                            sampler= train_sampler, num_workers=num_workers)
+valid_loader = DataLoader(valid_data,batch_size=batch_size, 
+                            sampler= valid_sampler, num_workers=num_workers)
+test_loader = DataLoader(valid_data,batch_size = batch_size, 
+                            sampler = test_sampler, num_workers=num_workers)
+
+                            
+# %%
