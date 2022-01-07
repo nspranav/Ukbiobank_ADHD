@@ -37,7 +37,7 @@ if not os.path.exists(path):
 # Loading the Data #####
 ########################
 
-
+torch.manual_seed(52)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
@@ -89,7 +89,7 @@ model = Network().to(device)
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.01)
+optimizer = optim.SGD(model.parameters(),lr=0.001)
 
 
 epochs = 100
@@ -115,6 +115,8 @@ for e in range(1,epochs+1):
 
         X,y = X.to(device),y.to(device)
 
+        optimizer.zero_grad()
+
         pred = model(torch.unsqueeze(X,1).float())
 
         if e%5 == 0:
@@ -122,7 +124,6 @@ for e in range(1,epochs+1):
         
         loss = criterion(pred,torch.unsqueeze(y,1).float())
 
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
