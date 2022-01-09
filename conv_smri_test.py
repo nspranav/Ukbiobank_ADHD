@@ -89,7 +89,7 @@ model = Network().to(device)
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.0009)
+optimizer = optim.SGD(model.parameters(),lr=0.0007)
 
 
 epochs = 100
