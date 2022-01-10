@@ -22,11 +22,11 @@ class Network(nn.Module):
         self.fc1 = nn.Linear(1024, 1)
         self.dropout = nn.Dropout(0.2)
 
-        self.layer1 = nn.Sequential(self.cv1,self.pool,nn.ReLU(),self.bn1)
-        self.layer2 = nn.Sequential(self.cv2,self.pool,nn.ReLU(),self.bn2)
-        self.layer3 = nn.Sequential(self.cv3,self.pool,nn.ReLU(),self.bn3)
-        self.layer4 = nn.Sequential(self.cv4,self.pool,nn.ReLU(),self.bn4)
-        self.layer5 = nn.Sequential(self.cv5,self.pool,nn.ReLU(),self.bn5)
+        self.layer1 = nn.Sequential(self.cv1,self.pool,self.bn1,nn.ReLU())
+        self.layer2 = nn.Sequential(self.cv2,self.pool,self.bn2,nn.ReLU())
+        self.layer3 = nn.Sequential(self.cv3,self.pool,self.bn3,nn.ReLU())
+        self.layer4 = nn.Sequential(self.cv4,self.pool,self.bn4,nn.ReLU())
+        self.layer5 = nn.Sequential(self.cv5,self.pool,self.bn5,nn.ReLU())
 
     def forward(self, img):
 
