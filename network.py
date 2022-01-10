@@ -40,7 +40,7 @@ class Network(nn.Module):
         #img = F.relu(self.cv7(self.dropout(self.avgpool(img))))
 
         img = img.view(img.shape[0], -1)
-        img = self.fc1(img)
+        img = self.dropout(self.fc1(img))
 
         #img = self.dropout(F.relu(self.fc3(img)))
         #img = self.dropout(F.relu(self.fc4(img)))
