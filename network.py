@@ -20,7 +20,7 @@ class Network(nn.Module):
         self.pool = nn.MaxPool3d(2)
 
         self.fc1 = nn.Linear(1024, 1)
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(0.1)
 
         self.layer1 = nn.Sequential(self.cv1,self.pool,self.bn1,nn.ReLU())
         self.layer2 = nn.Sequential(self.cv2,self.pool,self.bn2,nn.ReLU())

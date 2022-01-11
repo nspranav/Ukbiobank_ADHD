@@ -11,6 +11,7 @@ import torch
 import pickle
 import argparse
 import os
+from torch.utils.tensorboard import SummaryWriter
 
 #%%
 
@@ -36,6 +37,8 @@ if not os.path.exists(path):
 ########################
 # Loading the Data #####
 ########################
+writer = SummaryWriter(log_dir=path)
+
 
 torch.manual_seed(52)
 # number of subprocesses to use for data loading
@@ -164,6 +167,11 @@ for e in range(1,epochs+1):
         print("Epoch {}/{}".format(e,epochs),
                 "train loss = {:.5f}".format(train_loss/len(train_loader)),
                 "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
+
+        writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
+
+writer.flush()
+writer.close()    
 
 # %%
 
