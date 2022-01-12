@@ -131,6 +131,7 @@ for e in range(1,epochs+1):
         loss.backward()
         optimizer.step()
 
+
         train_loss += loss.item()
     else:
         model.eval()
@@ -164,7 +165,7 @@ for e in range(1,epochs+1):
             with open(path +'/arrays'+str(e)+'.pk','wb') as f:
                 pickle.dump(values,f)
         
-        
+
 
         print("Epoch {}/{}".format(e,epochs),
                 "train loss = {:.5f}".format(train_loss/len(train_loader)),
