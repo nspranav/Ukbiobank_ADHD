@@ -163,13 +163,15 @@ for e in range(1,epochs+1):
         if e%5 == 0:
             with open(path +'/arrays'+str(e)+'.pk','wb') as f:
                 pickle.dump(values,f)
+        
+        
 
         print("Epoch {}/{}".format(e,epochs),
                 "train loss = {:.5f}".format(train_loss/len(train_loader)),
                 "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
 
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
-        writer.add_scalar('Train Loss', valid_loss/len(valid_loader),e)
+        writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
 
 writer.flush()
 writer.close()    
