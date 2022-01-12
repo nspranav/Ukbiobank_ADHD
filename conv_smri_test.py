@@ -92,7 +92,7 @@ model = Network().to(device)
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.001)
+optimizer = optim.SGD(model.parameters(),lr=0.005)
 
 
 epochs = 100
@@ -169,6 +169,7 @@ for e in range(1,epochs+1):
                 "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
 
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
+        writer.add_scalar('Train Loss', valid_loss/len(valid_loader),e)
 
 writer.flush()
 writer.close()    
