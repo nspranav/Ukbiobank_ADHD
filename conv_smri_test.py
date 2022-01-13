@@ -44,7 +44,7 @@ torch.manual_seed(52)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 30
+batch_size = 20
 # percentage of training set to use as validation
 valid_size = 0.20
 # percentage of data to be used for testset
@@ -81,6 +81,7 @@ valid_loader = DataLoader(valid_data,batch_size=batch_size,
                             sampler= valid_sampler, num_workers=num_workers)
 test_loader = DataLoader(valid_data,batch_size = batch_size, 
                             sampler = test_sampler, num_workers=num_workers)
+
 # %%
 
 
@@ -92,7 +93,7 @@ model = Network().to(device)
 
 #%%
 criterion = nn.MSELoss()
-optimizer = optim.SGD(model.parameters(),lr=0.005)
+optimizer = optim.SGD(model.parameters(),lr=0.001)
 
 
 epochs = 100

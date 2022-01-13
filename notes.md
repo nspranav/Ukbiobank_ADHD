@@ -20,4 +20,9 @@
 
 # Reduce the dropout to 10% 
 
+- Job 5263681 with learning rate 0.001 
+    ## <span style = 'color: green'> Results </span>
+        1. Training error has reduced compared to the 20% dropout   
+
+
 # Reduce the number of channels at the convolution layer
