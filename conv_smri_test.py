@@ -99,7 +99,7 @@ optimizer = optim.SGD(model.parameters(),lr=0.001)
 epochs = 100
 train_losses, validation_losses = [],[]
 
-
+# %%
 print('Starting to Train...')
 
 
@@ -107,25 +107,24 @@ for e in range(1,epochs+1):
     model.train()
     train_loss = 0
 
-    actual_train = np.array([])
-    actual_valid = np.array([])
-    pred_train = np.array([])
-    pred_valid = np.array([])
+    actual_train = torch.tensor([]).to(device)
+    actual_valid = torch.tensor([]).to(device)
+    pred_train = torch.tensor([]).to(device)
+    pred_valid = torch.tensor([]).to(device)
 
     for X,y in train_loader:
-
-        if e%5 == 0:
-            actual_train = np.append(actual_train,y.numpy())
-
+        
         X,y = X.to(device),y.to(device)
+
+        actual_train = torch.cat((actual_train,y),0)
 
         optimizer.zero_grad()
         
 
         pred = model(torch.unsqueeze(X,1).float())
 
-        if e%5 == 0:
-            pred_train = np.append(pred_train,torch.flatten(pred).detach().to('cpu').numpy())
+
+        pred_train = torch.cat((pred_train,pred),0)
         
         loss = criterion(pred,torch.unsqueeze(y,1).float())
 
@@ -140,16 +139,13 @@ for e in range(1,epochs+1):
         with torch.no_grad():
             for X,y in valid_loader:
 
-                if e%5 == 0:
-                   actual_valid = np.append(actual_valid,y.numpy())
-
                 X,y = X.to(device),y.to(device)
+
+                actual_valid = torch.cat((actual_valid,y),0)
 
                 pred = model(torch.unsqueeze(X,1).float())
 
-                if e%5 == 0:
-                    pred_valid = np.append(pred_valid,torch.flatten(pred).
-                                        detach().to('cpu').numpy())
+                pred_valid = torch.cat((pred_valid,pred),0)
 
                 loss = criterion(pred,torch.unsqueeze(y,1).float())
 
@@ -162,9 +158,11 @@ for e in range(1,epochs+1):
             'pred_valid' : pred_valid
         }
 
-        if e%5 == 0:
-            with open(path +'/arrays'+str(e)+'.pk','wb') as f:
-                pickle.dump(values,f)
+        # if e % 5 == 0:
+        #     with open(path + '/arrays'+str(e)+'.pk', 'wb') as f:
+        #         pickle.dump(values, f)
+
+
         
 
 
@@ -172,6 +170,8 @@ for e in range(1,epochs+1):
                 "train loss = {:.5f}".format(train_loss/len(train_loader)),
                 "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
 
+        writer.add_histogram('Train pred dist.',pred_train,e)
+        writer.add_histogram('Valid pred dist.',pred_valid,e)
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
         writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
 
