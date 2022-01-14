@@ -14,12 +14,12 @@ class Network(nn.Module):
         self.bn3 = nn.BatchNorm3d(128)
         self.cv4 = nn.Conv3d(128, 256, 3,stride=1, padding=0)
         self.bn4 = nn.BatchNorm3d(256)
-        self.cv5 = nn.Conv3d(256, 512, 3,stride=1, padding=0)
-        self.bn5 = nn.BatchNorm3d(512)
+        self.cv5 = nn.Conv3d(256, 256, 3,stride=1, padding=0)
+        self.bn5 = nn.BatchNorm3d(256)
         
         self.pool = nn.MaxPool3d(2)
 
-        self.fc1 = nn.Linear(1024, 1)
+        self.fc1 = nn.Linear(512, 1)
 
         self.layer1 = nn.Sequential(self.cv1,self.bn1,self.pool,nn.ReLU())
         self.layer2 = nn.Sequential(self.cv2,self.bn2,self.pool,nn.ReLU())
