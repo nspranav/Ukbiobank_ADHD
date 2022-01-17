@@ -11,9 +11,8 @@ import torch
 import pickle
 import argparse
 import os
+from matplotlib import pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
-
-from bokeh.plotting import figure, show
 
 #%%
 
@@ -123,12 +122,12 @@ for e in range(1,epochs+1):
         optimizer.zero_grad()
         
 
-        pred = model(torch.unsqueeze(X,1).float())
+        pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
 
 
         pred_train = torch.cat((pred_train,pred),0)
         
-        loss = criterion(pred,torch.unsqueeze(y,1).float())
+        loss = criterion(pred,y)
 
         loss.backward()
         optimizer.step()
@@ -145,11 +144,11 @@ for e in range(1,epochs+1):
 
                 actual_valid = torch.cat((actual_valid,y),0)
 
-                pred = model(torch.unsqueeze(X,1).float())
+                pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
 
                 pred_valid = torch.cat((pred_valid,pred),0)
 
-                loss = criterion(pred,torch.unsqueeze(y,1).float())
+                loss = criterion(pred,y)
 
                 valid_loss += loss.item()
 
@@ -164,18 +163,35 @@ for e in range(1,epochs+1):
         #     with open(path + '/arrays'+str(e)+'.pk', 'wb') as f:
         #         pickle.dump(values, f)
 
-
+        plt.figure()
+        plt.plot(actual_train.detach().cpu().numpy(),pred_train.detach().cpu()
+                .numpy(),'.')
+        plt.title('Train - True vs pred')
+        plt.xlabel('True age')
+        plt.ylabel('Predicted age')
+        
+        writer.add_figure('Train - True vs pred', plt.gcf(),e,True)
         
 
+        plt.figure()
+        plt.plot(actual_valid.detach().cpu().numpy(),pred_valid.detach().cpu()
+                .numpy(),'.')
+        plt.title('Validation - True vs pred')
+        plt.xlabel('True age')
+        plt.ylabel('Predicted age')
+        
+        writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
 
         print("Epoch {}/{}".format(e,epochs),
                 "train loss = {:.5f}".format(train_loss/len(train_loader)),
                 "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
 
-        writer.add_histogram('Train pred dist.',pred_train,e)
-        writer.add_histogram('Valid pred dist.',pred_valid,e)
-        writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
-        writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
+        writer.add_histogram('Train pred dist.',pred_train,e,new_style= True)
+        writer.add_histogram('Valid pred dist.',pred_valid,e, new_style= True)
+        writer.add_scalar('Train Loss', train_loss/len(train_loader),e,
+                new_style= True)
+        writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e, 
+                new_style= True)
 
 writer.flush()
 writer.close()    
