@@ -13,7 +13,7 @@
     
     ### <span style = 'color: green'> Results </span>
     
-    > <span style = 'color: yellow'> Worked well with lr = 0.0007 but was oveerfitting. - Job 5261664. However we have reached the  <span>
+    > <span style = 'color: yellow'> Worked well with lr = 0.0007 but was oveerfitting. - Job 5261664. However we have reached the minima at 70th epoch <span>
 
 # Network with added drop out on the fc layer
 - With the smaller learning rate and the dropout on the FC layer.

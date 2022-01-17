@@ -20,6 +20,7 @@ class Network(nn.Module):
         self.pool = nn.MaxPool3d(2)
 
         self.fc1 = nn.Linear(512, 1)
+        
 
         self.layer1 = nn.Sequential(self.cv1,self.bn1,self.pool,nn.ReLU())
         self.layer2 = nn.Sequential(self.cv2,self.bn2,self.pool,nn.ReLU())

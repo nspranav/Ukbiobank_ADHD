@@ -13,6 +13,8 @@ import argparse
 import os
 from torch.utils.tensorboard import SummaryWriter
 
+from bokeh.plotting import figure, show
+
 #%%
 
 parser = argparse.ArgumentParser()
@@ -92,7 +94,7 @@ model = Network().to(device)
 
 
 #%%
-criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 optimizer = optim.SGD(model.parameters(),lr=0.001)
 
 
