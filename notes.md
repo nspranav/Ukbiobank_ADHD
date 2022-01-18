@@ -27,4 +27,10 @@
         1. Training error has reduced compared to the 20% dropout   
 
 
-# Reduce the number of channels at the convolution layer
+# Trying to mimic paper [brain age](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7610710/)
+
+- Using MAE was able to fit model with error of 3 years [5335292](out5335292.out) line 25
+
+# Try the same model with all the samples
+
+# Learning rate scheduling
