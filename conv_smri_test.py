@@ -188,10 +188,8 @@ for e in range(1,epochs+1):
 
         writer.add_histogram('Train pred dist.',pred_train,e,new_style= True)
         writer.add_histogram('Valid pred dist.',pred_valid,e, new_style= True)
-        writer.add_scalar('Train Loss', train_loss/len(train_loader),e,
-                new_style= True)
-        writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e, 
-                new_style= True)
+        writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
+        writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
 
 writer.flush()
 writer.close()    
