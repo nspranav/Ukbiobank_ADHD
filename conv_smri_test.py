@@ -94,7 +94,8 @@ model = Network().to(device)
 
 #%%
 criterion = nn.L1Loss()
-optimizer = optim.SGD(model.parameters(),lr=0.001)
+optimizer = optim.SGD([{'params': model.convs.parameters()},
+                        {'params': model.fc1.parameters(),'lr':3e-3}],lr=1e-3)
 
 
 epochs = 100

@@ -28,13 +28,12 @@ class Network(nn.Module):
         self.layer4 = nn.Sequential(self.cv4,self.bn4,self.pool,nn.ReLU())
         self.layer5 = nn.Sequential(self.cv5,self.bn5,self.pool,nn.ReLU())
 
+        self.convs = nn.Sequential(self.layer1,self.layer2,self.layer3,
+                        self.layer4, self.layer5)
+
     def forward(self, img):
 
-        img = self.layer1(img)
-        img = self.layer2(img)
-        img = self.layer3(img)
-        img = self.layer4(img)
-        img = self.layer5(img)
+        img = self.convs(img)
 
         #img = F.relu(self.pool(self.cv6(img)))
         #img = F.relu(self.cv7(self.dropout(self.avgpool(img))))
