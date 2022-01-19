@@ -27,9 +27,15 @@
         1. Training error has reduced compared to the 20% dropout   
 
 
-# Trying to mimic paper [brain age](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7610710/)
+# Trying model from paper [brain age](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7610710/)
+
+- Did not use their sigmoid layer. Instead used the FC layers for regression.
 
 - Using MAE was able to fit model with error of 3 years [5335292](out5335292.out) line 25
+
+
+# Model with 2 FC layers
+- Did not improve the MAE. ref: [5393704](out5393704.out)
 
 # Try the same model with all the samples
 

@@ -19,8 +19,7 @@ class Network(nn.Module):
         
         self.pool = nn.MaxPool3d(2)
 
-        self.fc1 = nn.Linear(512, 256)
-        self.fc2 = nn.Linear(256,1)
+        self.fc1 = nn.Linear(512, 1)
         
 
         self.layer1 = nn.Sequential(self.cv1,self.bn1,self.pool,nn.ReLU())
@@ -42,7 +41,6 @@ class Network(nn.Module):
 
         img = img.view(img.shape[0], -1)
         img = self.fc1(img)
-        img = self.fc2(img)
 
         #img = self.dropout(F.relu(self.fc3(img)))
         #img = self.dropout(F.relu(self.fc4(img)))
