@@ -3,7 +3,9 @@ import torch.nn.functional as F
 
 
 class Network(nn.Module):
-
+    """
+    aaasdasda 
+    """
     def __init__(self):
         super().__init__()
         self.cv1 = nn.Conv3d(1, 32, 3, stride=1, padding=0) 
@@ -20,12 +22,14 @@ class Network(nn.Module):
         self.pool = nn.MaxPool3d(2)
 
         self.fc1 = nn.Linear(512, 1)
+
+        self.d3d = nn.Dropout3d(0.2)
         
 
         self.layer1 = nn.Sequential(self.cv1,self.bn1,self.pool,nn.ReLU())
-        self.layer2 = nn.Sequential(self.cv2,self.bn2,self.pool,nn.ReLU())
-        self.layer3 = nn.Sequential(self.cv3,self.bn3,self.pool,nn.ReLU())
-        self.layer4 = nn.Sequential(self.cv4,self.bn4,self.pool,nn.ReLU())
+        self.layer2 = nn.Sequential(self.cv2,self.bn2,self.pool,nn.ReLU(),self.d3d)
+        self.layer3 = nn.Sequential(self.cv3,self.bn3,self.pool,nn.ReLU(),self.d3d)
+        self.layer4 = nn.Sequential(self.cv4,self.bn4,self.pool,nn.ReLU(),self.d3d)
         self.layer5 = nn.Sequential(self.cv5,self.bn5,self.pool,nn.ReLU())
 
         self.convs = nn.Sequential(self.layer1,self.layer2,self.layer3,

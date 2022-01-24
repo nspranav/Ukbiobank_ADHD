@@ -51,7 +51,7 @@ class CustomDataset(Dataset):
 
     
     def __len__(self):
-        return 12000
+        return len(self.dirs)
 
     def __getitem__(self,idx):
         try:

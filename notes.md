@@ -13,7 +13,7 @@
     
     ### <span style = 'color: green'> Results </span>
     
-    > <span style = 'color: yellow'> Worked well with lr = 0.0007 but was oveerfitting. - Job 5261664. However we have reached the minima at 70th epoch <span>
+    > <span style = 'color: black'> Worked well with lr = 0.0007 but was oveerfitting. - Job 5261664. However we have reached the minima at 70th epoch <span>
 
 # Network with added drop out on the fc layer
 - With the smaller learning rate and the dropout on the FC layer.
@@ -37,6 +37,16 @@
 # Model with 2 FC layers
 - Did not improve the MAE. ref: [5393704](out5393704.out)
 
+
 # Try the same model with all the samples
+- Was able to reduce the error to 2.5 without overfitting. Ref: [5415909](out5415909.out). Line 40 epoch 37.
+
+# Different learning rates for CONV layers and FC layers
+- The minimum error reached before overfitting was 3 epoch 25 of [5416056](out5416056.out) 
+### 1. Adding dropout to the First conv layer : Job [] 
+    - No change from the model without dropout. 
+    - Only 12000 samples were used
+
+### 2. Adding droput to only 2nd layer: Job [5418772](out5418772.out)
 
 # Learning rate scheduling

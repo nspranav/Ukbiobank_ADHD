@@ -2,7 +2,7 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 5
-#SBATCH --mem=64g
+#SBATCH --mem=44g
 #SBATCH --gres=gpu:v100:1
 #SBATCH -p qTRDGPUH
 #SBATCH -t 7680
