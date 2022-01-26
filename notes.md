@@ -42,7 +42,9 @@
 - Was able to reduce the error to 2.5 without overfitting. Ref: [5415909](out5415909.out). Line 40 epoch 37.
 
 # Different learning rates for CONV layers and FC layers
-    - The minimum error reached before overfitting was 3 epoch 25 of [5416056](out5416056.out) 
+
+- <b> The minimum error reached before overfitting was 3 epoch 25 of [5416056](out5416056.out) </b>
+
 ### 1. Adding dropout to the First conv layer
     - No change from the model without dropout. 
     - Only 12000 samples were used
@@ -54,4 +56,9 @@
 
 ### 4. Adding dropout to all the layers: Job [5429170](out5429170.out)
 
-# Learning rate scheduling
+<br>
+
+# Training on multiple GPUs i.e. Distributed Learning
+
+# Start transfer learning with the gender
+    - Fix the Conv layers and only train the FC layer with sigmoid

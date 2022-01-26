@@ -10,3 +10,4 @@ reg_train.png
 reg_valid.png
 *.pk
 Job*/
+gpu*.txt
