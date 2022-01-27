@@ -21,14 +21,17 @@ parser.add_argument('job_id',type=str)
 args = parser.parse_args()
 print(args.job_id)
 
+
 #creating directory
 
 directory = args.job_id
 parent_directory = '/data/users2/pnadigapusuresh1/JobOutputs'
 path = os.path.join(parent_directory,directory)
+model_save_path = os.path.join(path,'models')
 
 if not os.path.exists(path):
     os.mkdir(path)
+    os.mkdir(model_save_path)
 
 
 
@@ -94,8 +97,7 @@ model = Network().to(device)
 
 #%%
 criterion = nn.L1Loss()
-optimizer = optim.SGD([{'params': model.convs.parameters()},
-                        {'params': model.fc1.parameters(),'lr':3e-3}],lr=1e-3)
+optimizer = optim.SGD(params=model.parameters(),lr=1e-3)
 
 
 epochs = 100
@@ -191,6 +193,10 @@ for e in range(1,epochs+1):
         writer.add_histogram('Valid pred dist.',pred_valid,e)
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
         writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
+
+        if abs(valid_loss/len(valid_loader) - train_loss/len(train_loader)) < 0.2:
+           torch.save(model.state_dict(), os.path.join(model_save_path,
+                'epoch_'+str(e)))
 
 writer.flush()
 writer.close()    
