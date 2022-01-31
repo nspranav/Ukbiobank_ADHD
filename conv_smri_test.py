@@ -8,7 +8,6 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from custom_dataset import CustomDataset
 from network import Network
 import torch
-import pickle
 import argparse
 import os
 from matplotlib import pyplot as plt

@@ -21,19 +21,20 @@ class Network(nn.Module):
         
         self.pool = nn.MaxPool3d(2)
 
-        self.fc1 = nn.Linear(512, 1)
+        self.fc1 = nn.Linear(512, 2)
 
         self.d3d = nn.Dropout3d(0.2)
         
 
-        self.layer1 = nn.Sequential(self.cv1,nn.ReLU(),self.bn1,self.pool)
-        self.layer2 = nn.Sequential(self.cv2,nn.ReLU(),self.bn2,self.pool)
-        self.layer3 = nn.Sequential(self.cv3,nn.ReLU(),self.bn3,self.pool)
-        self.layer4 = nn.Sequential(self.cv4,nn.ReLU(),self.bn4,self.pool)
-        self.layer5 = nn.Sequential(self.cv5,nn.ReLU(),self.bn5,self.pool)
+        self.layer2 = nn.Sequential(self.cv2,self.bn2,self.pool,nn.ReLU())
+        self.layer3 = nn.Sequential(self.cv3,self.bn3,self.pool,nn.ReLU())
+        self.layer4 = nn.Sequential(self.cv4,self.bn4,self.pool,nn.ReLU())
+        self.layer1 = nn.Sequential(self.cv1,self.bn1,self.pool,nn.ReLU())
+        self.layer5 = nn.Sequential(self.cv5,self.bn5,self.pool,nn.ReLU())
 
         self.convs = nn.Sequential(self.layer1,self.layer2,self.layer3,
                         self.layer4, self.layer5)
+        self.classifier = nn.Sequential(nn.Dropout(),self.fc1)
 
     def forward(self, img):
 

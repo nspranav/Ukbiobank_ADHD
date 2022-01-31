@@ -25,11 +25,15 @@ class CustomDataset(Dataset):
         self.dirs.pop(15211)
         self.dirs.pop(18347)
         self.dirs.pop(29719)
-
+        """
+        # column for age: age_when_attended_assessment_centre_f21003_0_0
+        # column for sex; sex_f31_0_0 
+        """
         self.dirs = np.array(self.dirs,dtype=np.int)
         self.vars = pd.read_csv(path+label_file,index_col='eid',
-                            usecols=['eid','age_when_attended_assessment_centre_f21003_0_0'])
+                            usecols=['eid','sex_f31_0_0'])
         self.vars.columns = ['neuroticism_score']
+
         #self.vars['neuroticism_score'] = self.vars['neuroticism_score'] + 1 
         
         # Applying log transform

@@ -16,5 +16,5 @@
 
 
 source /home/users/pnadigapusuresh1/anaconda3/bin/activate CV2
-python conv_smri_test.py ${SLURM_JOBID}
+python conv_smri.py ${SLURM_JOBID}
 
