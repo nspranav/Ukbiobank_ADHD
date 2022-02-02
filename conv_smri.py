@@ -1,5 +1,4 @@
 #%%
-import sys
 import os
 import argparse
 import numpy as np
@@ -41,7 +40,6 @@ if not os.path.exists(path):
 # Loading the Data #####
 ########################
 
-print(sys.prefix)
 writer = SummaryWriter(log_dir=path)
 
 # number of subprocesses to use for data loading
@@ -87,7 +85,22 @@ test_loader = DataLoader(data,batch_size = batch_size,
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using {} device".format(device))
 
-model = Network().to(device)
+model = Network()
+
+# Loading the model from Job 5436878
+
+load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
+
+model.load_state_dict(torch.load(load_path))
+
+# Freezing the conv layers but not the Batch Norm Layers
+for name, param in model.named_parameters():
+    if("bn" not in name):
+        param.requires_grad = False
+
+model.fc1 = nn.Sequential(nn.Dropout(),nn.Linear(512,2))
+
+model = model.to(device)
 
 #%%
 criterion = nn.CrossEntropyLoss()

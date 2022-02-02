@@ -4,8 +4,8 @@
 #SBATCH -c 5
 #SBATCH --mem=44g
 #SBATCH --gres=gpu:v100:1
-#SBATCH -p qTRDGPUH
-#SBATCH -t 2800
+#SBATCH -p qTRDGPUL
+#SBATCH -t 7680
 #SBATCH -J Jupyter
 #SBATCH -e error%A.err
 #SBATCH -o out%A.out

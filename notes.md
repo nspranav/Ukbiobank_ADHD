@@ -62,3 +62,8 @@
 
 # Start transfer learning with the gender
     - Fix the Conv layers and only train the FC layer with sigmoid
+
+### 1. Without transfer learning 
+    - The accuracy is 98%
+
+### 2. 

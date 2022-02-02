@@ -21,7 +21,7 @@ class Network(nn.Module):
         
         self.pool = nn.MaxPool3d(2)
 
-        self.fc1 = nn.Linear(512, 2)
+        self.fc1 = nn.Linear(512, 1)
 
         self.d3d = nn.Dropout3d(0.2)
         
@@ -34,7 +34,7 @@ class Network(nn.Module):
 
         self.convs = nn.Sequential(self.layer1,self.layer2,self.layer3,
                         self.layer4, self.layer5)
-        self.classifier = nn.Sequential(nn.Dropout(),self.fc1)
+        #self.classifier = nn.Sequential(nn.Dropout(),self.fc1)
 
     def forward(self, img):
 
