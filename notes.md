@@ -66,4 +66,10 @@
 ### 1. Without transfer learning 
     - The accuracy is 98%
 
-### 2. 
+### 2. With transfer learning
+
+- Job [5454477](out5454477.out) with all data : stopped due to timeout
+
+- Job [5458898](out5458898.out) run with 20k data
+
+- Job 
