@@ -108,7 +108,7 @@ optimizer = optim.SGD(model.parameters(),lr=0.001)
 
 #scheduler = ReduceLROnPlateau(optimizer, 'min', patience=2, verbose=True)
 
-epochs = 15
+epochs = 100
 
 train_losses, validation_losses = [],[]
 

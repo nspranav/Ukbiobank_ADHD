@@ -2,8 +2,8 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 5
-#SBATCH --mem=100g
-#SBATCH --gres=gpu:v100:4
+#SBATCH --mem=132g
+#SBATCH --gres=gpu:v100:3
 #SBATCH -p qTRDGPUL
 #SBATCH -t 7680
 #SBATCH -J ConvLr00001
@@ -15,5 +15,5 @@
 #SBATCH --oversubscribe
 
 
-source /home/users/pnadigapusuresh1/anaconda3/bin/activate CV2
+source /home/users/pnadigapusuresh1/anaconda3/bin/activate latest
 python distributed_conv.py ${SLURM_JOBID}

@@ -58,18 +58,28 @@
 
 <br>
 
-# Training on multiple GPUs i.e. Distributed Learning
 
 # Start transfer learning with the gender
     - Fix the Conv layers and only train the FC layer with sigmoid
 
-### 1. Without transfer learning 
+## 1. Without transfer learning 
     - The accuracy is 98%
 
-### 2. With transfer learning
+## 2. With transfer learning
+<br> 
 
-- Job [5454477](out5454477.out) with all data : stopped due to timeout
+#### Job [5458898](out5458898.out) run with 20k data : <span style = 'color:red'> Stopped due to timeout </span>
+    - Accuracy was improving in both training and testing
 
-- Job [5458898](out5458898.out) run with 20k data
+<br>
 
-- Job 
+#### Job [5458900](out5458900.out) run with all data : <span style = 'color:red'> Stopped due to timeout </span>
+    - Accuracy was improving in both training and testing
+
+<br/>
+
+#### Job [5460432](out5460432.out) distributed learning for faster training : <span style = 'color:green'> Done </span>
+    - Max accuracy reached is 0.80
+
+#### Job [5503087](gpu4_5503087.txt) Distributed learning with last first 4 layers fixed : <span style='color:orange'> Running </span> 
+    - Wow. Accuracy of almost 99% percent

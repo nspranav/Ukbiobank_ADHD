@@ -12,6 +12,7 @@ import pickle
 import argparse
 import os
 from matplotlib import pyplot as plt
+import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
 #%%
@@ -32,8 +33,6 @@ if not os.path.exists(path):
     os.mkdir(path)
 
 
-
-
 #%%
 
 ########################
@@ -46,7 +45,7 @@ torch.manual_seed(52)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 100
+batch_size = 75
 # percentage of training set to use as validation
 valid_size = 0.20
 # percentage of data to be used for testset
@@ -92,13 +91,24 @@ print("Using {} device".format(device))
 
 model = Network()
 
-criterion = nn.L1Loss()
-optimizer = optim.SGD([{'params': model.convs.parameters()},
-                        {'params': model.fc1.parameters(),'lr':3e-3}],lr=1e-3)
+# Loading the model from Job 5436878
 
+load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
+
+model.load_state_dict(torch.load(load_path))
+
+# Freezing the conv layers but not the Batch Norm Layers
+for name, param in model.named_parameters():
+    if '5' in name:
+        param.requires_grad = False
+
+model.fc1 = nn.Sequential(nn.Dropout(),nn.Linear(512,2))
+
+#%%
 
 epochs = 100
-train_losses, validation_losses = [],[]
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(model.parameters(),lr=0.003)
 
 #%%
 
@@ -116,6 +126,7 @@ print('Starting to Train...')
 for e in range(1,epochs+1):
     model.train()
     train_loss = 0
+    num_correct_train = 0
 
     actual_train = torch.tensor([]).to(device)
     actual_valid = torch.tensor([]).to(device)
@@ -136,16 +147,21 @@ for e in range(1,epochs+1):
 
         pred_train = torch.cat((pred_train,pred),0)
         
-        loss = criterion(pred,y)
+        loss = criterion(pred,y.long())
 
         loss.backward()
         optimizer.step()
 
 
         train_loss += loss.item()
+        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],
+                        y).view(-1)
+        num_correct_train += torch.sum(correct).item()
     else:
         model.eval()
         valid_loss = 0
+        num_correct_valid = 0
+
         with torch.no_grad():
             for X,y in valid_loader:
 
@@ -153,52 +169,57 @@ for e in range(1,epochs+1):
 
                 actual_valid = torch.cat((actual_valid,y),0)
 
-                pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
+                pred = model(torch.unsqueeze(X,1).float())
 
                 pred_valid = torch.cat((pred_valid,pred),0)
 
-                loss = criterion(pred,y)
+                loss = criterion(pred,y.long())
 
                 valid_loss += loss.item()
+                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],
+							   y).view(-1)
+                num_correct_valid += torch.sum(correct).item()
 
-        values = {
-            'actual_train' : actual_train,
-            'actual_valid' : actual_valid,
-            'pred_train' : pred_train,
-            'pred_valid' : pred_valid
-        }
+        # values = {
+        #     'actual_train' : actual_train,
+        #     'actual_valid' : actual_valid,
+        #     'pred_train' : pred_train,
+        #     'pred_valid' : pred_valid
+        # }
 
         # if e % 5 == 0:
         #     with open(path + '/arrays'+str(e)+'.pk', 'wb') as f:
         #         pickle.dump(values, f)
 
-        plt.figure()
-        plt.plot(actual_train.detach().cpu().numpy(),pred_train.detach().cpu()
-                .numpy(),'.')
-        plt.title('Train - True vs pred')
-        plt.xlabel('True age')
-        plt.ylabel('Predicted age')
+        # plt.figure()
+        # plt.plot(actual_train.detach().cpu().numpy(),pred_train.detach().cpu()
+        #         .numpy(),'.')
+        # plt.title('Train - True vs pred')
+        # plt.xlabel('True age')
+        # plt.ylabel('Predicted age')
         
-        writer.add_figure('Train - True vs pred', plt.gcf(),e,True)
+        # writer.add_figure('Train - True vs pred', plt.gcf(),e,True)
         
 
-        plt.figure()
-        plt.plot(actual_valid.detach().cpu().numpy(),pred_valid.detach().cpu()
-                .numpy(),'.')
-        plt.title('Validation - True vs pred')
-        plt.xlabel('True age')
-        plt.ylabel('Predicted age')
+        # plt.figure()
+        # plt.plot(actual_valid.detach().cpu().numpy(),pred_valid.detach().cpu()
+        #         .numpy(),'.')
+        # plt.title('Validation - True vs pred')
+        # plt.xlabel('True age')
+        # plt.ylabel('Predicted age')
         
-        writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
+        # writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
 
-        print("Epoch {}/{}".format(e,epochs),
-                "train loss = {:.5f}".format(train_loss/len(train_loader)),
-                "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
+        print("Epoch: {}/{}.. ".format(e, epochs),
+              "Training Loss: {:.3f}.. ".format(train_loss/len(train_loader)),
+              "Test Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),
+              'Train Accuracy: {:.3f}..'.format(num_correct_train/len(train_idx)),
+              "validation Accuracy: {:.3f}..".format(num_correct_valid/len(valid_idx)))
 
-        writer.add_histogram('Train pred dist.',pred_train,e)
-        writer.add_histogram('Valid pred dist.',pred_valid,e)
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
         writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
+        writer.add_scalar('Train Accuracy',num_correct_train/len(train_idx),e)
+        writer.add_scalar('validation Accuracy', num_correct_valid/len(valid_idx),e)
 
 writer.flush()
 writer.close()    

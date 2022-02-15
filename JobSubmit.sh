@@ -15,6 +15,6 @@
 #SBATCH --oversubscribe
 
 
-source /home/users/pnadigapusuresh1/anaconda3/bin/activate CV2
+source /home/users/pnadigapusuresh1/anaconda3/bin/activate latest
 python conv_smri.py ${SLURM_JOBID}
 
