@@ -81,5 +81,25 @@
 #### Job [5460432](out5460432.out) distributed learning for faster training : <span style = 'color:green'> Done </span>
     - Max accuracy reached is 0.80
 
-#### Job [5503087](gpu4_5503087.txt) Distributed learning with last first 4 layers fixed : <span style='color:orange'> Running </span> 
-    - Wow. Accuracy of almost 99% percent
+#### Job [5503087](gpu4_5503087.txt) Distributed learning with last first 4 layers fixed : <span style='color:green;font-weight: bold;'> Done </span> 
+    - Accuracy of almost 99% percent
+
+<br/>
+
+# Starting transfer learning with the cognitive scores (Number of Digits remembered)
+
+## With transfer learning 
+
+<br>
+
+#### Job [5526067](gpu4_5526067.txt) Distributed learning with all layers fixed except FC layer: <span style='color:green;font-weight: bold;'> Done </span>
+    - MSE of 2.3 for train and 2.4 for validation
+
+#### Job [5704714](gpu4_5704714.txt) Distributed learning with 4 CONV layers fixed: <span style="color:green; font-weight: bold"> Done </span> 
+    - MSE of 2.2 on training and 2.4 on validation
+
+#### Job [5720439](gpu4_5720439.txt) Distributed learning with 4 CONV layers fixed; Last CV layer has lr=1e-3 and FC layer has lr=1e-2: <span style="color:Green; font-weight: bold"> Done </span> 
+    - MSE of 1.4 for train and 1.7 for validation
+
+#### Job [5932653](gpu4_5932653.txt) Using classification with scores of 4 to 9
+    - 

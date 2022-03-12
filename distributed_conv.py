@@ -1,6 +1,5 @@
 #%%
 import numpy as np
-from numpy.core.numeric import indices
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -8,7 +7,6 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from custom_dataset import CustomDataset
 from network import Network
 import torch
-import pickle
 import argparse
 import os
 from matplotlib import pyplot as plt
@@ -28,10 +26,11 @@ print('number of gpus ',torch.cuda.device_count())
 directory = args.job_id
 parent_directory = '/data/users2/pnadigapusuresh1/JobOutputs'
 path = os.path.join(parent_directory,directory)
+model_save_path = os.path.join(path,'models')
 
 if not os.path.exists(path):
     os.mkdir(path)
-
+    os.mkdir(model_save_path)
 
 #%%
 
@@ -45,7 +44,7 @@ torch.manual_seed(52)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 75
+batch_size = 25
 # percentage of training set to use as validation
 valid_size = 0.20
 # percentage of data to be used for testset
@@ -99,21 +98,29 @@ model.load_state_dict(torch.load(load_path))
 
 # Freezing the conv layers but not the Batch Norm Layers
 for name, param in model.named_parameters():
-    if '5' in name:
+    if '5' not in name:
         param.requires_grad = False
+    if 'bn' in name:
+        param.requires_grad = True
 
-model.fc1 = nn.Sequential(nn.Dropout(),nn.Linear(512,2))
+model.fc1 = nn.Sequential(nn.Linear(512,256),
+                nn.Linear(256,6))
+
 
 #%%
 
 epochs = 100
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(),lr=0.003)
+optimizer = optim.SGD(params=model.parameters(), lr=0.03)
+
+# adding regularization
+
 
 #%%
 
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
+    batch_size *= torch.cuda.device_count()
 
 model.to(device)
 
@@ -140,22 +147,18 @@ for e in range(1,epochs+1):
         actual_train = torch.cat((actual_train,y),0)
 
         optimizer.zero_grad()
-        
 
         pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
 
-
-        pred_train = torch.cat((pred_train,pred),0)
+        pred_train = torch.cat((pred_train,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
         
-        loss = criterion(pred,y.long())
+        loss = criterion(pred,y)
 
         loss.backward()
         optimizer.step()
-
-
+        #print('loss =',loss.item())
         train_loss += loss.item()
-        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],
-                        y).view(-1)
+        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
         num_correct_train += torch.sum(correct).item()
     else:
         model.eval()
@@ -171,13 +174,13 @@ for e in range(1,epochs+1):
 
                 pred = model(torch.unsqueeze(X,1).float())
 
-                pred_valid = torch.cat((pred_valid,pred),0)
+                
 
                 loss = criterion(pred,y.long())
 
                 valid_loss += loss.item()
-                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],
-							   y).view(-1)
+                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
+                pred_valid = torch.cat((pred_valid,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
                 num_correct_valid += torch.sum(correct).item()
 
         # values = {
@@ -190,39 +193,47 @@ for e in range(1,epochs+1):
         # if e % 5 == 0:
         #     with open(path + '/arrays'+str(e)+'.pk', 'wb') as f:
         #         pickle.dump(values, f)
+        
+        #compute the r square
 
-        # plt.figure()
-        # plt.plot(actual_train.detach().cpu().numpy(),pred_train.detach().cpu()
-        #         .numpy(),'.')
-        # plt.title('Train - True vs pred')
-        # plt.xlabel('True age')
-        # plt.ylabel('Predicted age')
         
-        # writer.add_figure('Train - True vs pred', plt.gcf(),e,True)
+        plt.figure()
+        plt.plot(actual_train.detach().cpu().numpy(),pred_train.detach().cpu()
+                .numpy(),'.')
+        plt.title('Train - True vs pred')
+        plt.xlabel('True numeric_score')
+        plt.ylabel('Predicted numeric_score')
+        
+        writer.add_figure('Train - True vs pred', plt.gcf(),e,True)
         
 
-        # plt.figure()
-        # plt.plot(actual_valid.detach().cpu().numpy(),pred_valid.detach().cpu()
-        #         .numpy(),'.')
-        # plt.title('Validation - True vs pred')
-        # plt.xlabel('True age')
-        # plt.ylabel('Predicted age')
+        plt.figure()
+        plt.plot(actual_valid.detach().cpu().numpy(),pred_valid.detach().cpu()
+                .numpy(),'.')
+        plt.title('Validation - True vs pred')
+        plt.xlabel('True score')
+        plt.ylabel('Predicted score')
         
-        # writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
+        writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
 
         print("Epoch: {}/{}.. ".format(e, epochs),
               "Training Loss: {:.3f}.. ".format(train_loss/len(train_loader)),
-              "Test Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),
+              "Validation Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),
               'Train Accuracy: {:.3f}..'.format(num_correct_train/len(train_idx)),
-              "validation Accuracy: {:.3f}..".format(num_correct_valid/len(valid_idx)))
+              "validation Accuracy: {:.3f}..".format(num_correct_valid/len(valid_idx))
+            )
+              
 
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
         writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
         writer.add_scalar('Train Accuracy',num_correct_train/len(train_idx),e)
         writer.add_scalar('validation Accuracy', num_correct_valid/len(valid_idx),e)
+        if abs(valid_loss/len(valid_loader) - train_loss/len(train_loader)) < 0.2:
+           torch.save(model.state_dict(), os.path.join(model_save_path,
+                'epoch_'+str(e)))
 
 writer.flush()
-writer.close()    
+writer.close()
 
 # %%
 

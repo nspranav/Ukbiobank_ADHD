@@ -11,8 +11,53 @@ import torch
 import argparse
 import os
 from matplotlib import pyplot as plt
+import torch.nn.functional as F 
 from torch.utils.tensorboard import SummaryWriter
 
+#%%
+import math
+def find_lr(model, loss_fn, optimizer, init_value=1e-8, final_value=10.0):
+    number_in_epoch = len(train_loader) - 1
+    update_step = (final_value / init_value) ** (1 / number_in_epoch)
+    lr = init_value
+    optimizer.param_groups[0]["lr"] = lr
+    best_loss = 0.0
+    batch_num = 0
+    losses = []
+    log_lrs = []
+    for X,y in train_loader:
+        batch_num += 1
+        X, y = X.to(device).float(), y.to(device).float()
+        #inputs, labels = inputs, labels
+        optimizer.zero_grad()
+        outputs = torch.squeeze(model(torch.unsqueeze(X,1).float()))
+        loss = loss_fn(outputs, y).float()
+
+        # Crash out if loss explodes
+
+        if batch_num > 1 and loss > 4 * best_loss:
+            return log_lrs[10:-5], losses[10:-5]
+
+        # Record the best loss
+
+        if loss < best_loss or batch_num == 1:
+            best_loss = loss
+
+        # Store the values
+
+        losses.append(loss)
+        log_lrs.append(math.log10(lr))
+
+        # Do the backward pass and optimize
+
+        loss.backward()
+        optimizer.step()
+
+        # Update the lr for the next step and store
+
+        lr *= update_step
+        optimizer.param_groups[0]["lr"] = lr
+    return log_lrs[10:-5], losses[10:-5]
 #%%
 
 parser = argparse.ArgumentParser()
@@ -47,7 +92,7 @@ torch.manual_seed(52)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 20
+batch_size = 5
 # percentage of training set to use as validation
 valid_size = 0.20
 # percentage of data to be used for testset
@@ -91,11 +136,13 @@ test_loader = DataLoader(valid_data,batch_size = batch_size,
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("Using {} device".format(device))
 
-model = Network().to(device)
+model = Network()
+model.fc1 = nn.Linear(512,11)
+model = model.to(device)
 
 
 #%%
-criterion = nn.L1Loss()
+criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(params=model.parameters(),lr=1e-3)
 
 
@@ -109,7 +156,7 @@ print('Starting to Train...')
 for e in range(1,epochs+1):
     model.train()
     train_loss = 0
-
+    num_correct_train = 0
     actual_train = torch.tensor([]).to(device)
     actual_valid = torch.tensor([]).to(device)
     pred_train = torch.tensor([]).to(device)
@@ -126,7 +173,6 @@ for e in range(1,epochs+1):
 
         pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
 
-
         pred_train = torch.cat((pred_train,pred),0)
         
         loss = criterion(pred,y)
@@ -134,11 +180,13 @@ for e in range(1,epochs+1):
         loss.backward()
         optimizer.step()
 
-
         train_loss += loss.item()
+        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
+        num_correct_train += torch.sum(correct).item()
     else:
         model.eval()
         valid_loss = 0
+        num_correct_valid =0
         with torch.no_grad():
             for X,y in valid_loader:
 
@@ -153,6 +201,8 @@ for e in range(1,epochs+1):
                 loss = criterion(pred,y)
 
                 valid_loss += loss.item()
+                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
+                num_correct_valid += torch.sum(correct).item()
 
         values = {
             'actual_train' : actual_train,
@@ -188,8 +238,8 @@ for e in range(1,epochs+1):
                 "train loss = {:.5f}".format(train_loss/len(train_loader)),
                 "validation loss = {:.5f}".format(valid_loss/len(valid_loader)))
 
-        writer.add_histogram('Train pred dist.',pred_train,e)
-        writer.add_histogram('Valid pred dist.',pred_valid,e)
+        #writer.add_histogram('Train pred dist.',pred_train,e)
+        #writer.add_histogram('Valid pred dist.',pred_valid,e)
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
         writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
 

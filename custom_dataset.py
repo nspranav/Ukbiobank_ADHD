@@ -13,7 +13,8 @@ import random
 class CustomDataset(Dataset):
     
     def __init__(self,img_path= '/data/qneuromark/Data/UKBiobank/Data_BIDS/Raw_Data'
-                    ,label_file= 'subset_vars.csv',transform=None, target_transform=None,train=True):
+                    , label_file= 'subset_vars.csv',transform=None
+                    , target_transform=None,train=True):
         path = '/data/users2/pnadigapusuresh1/Projects/ukbiobank/Data/'
         self.img_path = img_path
         self.dirs = os.listdir(img_path)
@@ -28,23 +29,24 @@ class CustomDataset(Dataset):
         """
         # column for age: age_when_attended_assessment_centre_f21003_0_0
         # column for sex; sex_f31_0_0 
+        # column for Numeric memory: 'maximum_digits_remembered_correctly_f4282_2_0'
         """
-        self.dirs = np.array(self.dirs,dtype=np.int)
+        self.dirs = np.array(self.dirs,dtype=int)
         self.vars = pd.read_csv(path+label_file,index_col='eid',
-                            usecols=['eid','sex_f31_0_0'])
-        self.vars.columns = ['neuroticism_score']
+                            usecols=['eid','maximum_digits_remembered_correctly_f4282_2_0'])
+        self.vars.columns = ['score']
 
-        #self.vars['neuroticism_score'] = self.vars['neuroticism_score'] + 1 
+        #self.vars['score'] = self.vars['score'] + 1 
         
         # Applying log transform
         #self.vars = self.vars.apply(np.log,axis=1)
 
-        #self.vars['neuroticism_score'] = SimpleImputer(strategy='mean',
+        #self.vars['score'] = SimpleImputer(strategy='mean',
         #                       missing_values=np.nan).fit_transform(self.vars)
         
-
-        self.misssing_scores = self.vars[self.vars['neuroticism_score']
-                                        .isnull()].index
+        # removing missing scores 
+        self.misssing_scores = self.vars.loc[
+                        self.vars.score.isin([-1,2,3,10,11,12,np.NaN])].index
 
         
         self.dirs = list(set(self.dirs) - set(self.misssing_scores) )
@@ -129,8 +131,8 @@ class CustomDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
 
-    
-        return img,label
+        #offset by 4 because of scores range from 4 to 9
+        return img,int(label-4)
 # %%
 
 

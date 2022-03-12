@@ -8,7 +8,7 @@ class Network(nn.Module):
     """
     def __init__(self):
         super().__init__()
-        self.cv1 = nn.Conv3d(1, 32, 3, stride=1, padding=0) 
+        self.cv1 = nn.Conv3d(1, 32, 3, stride=1, padding=0) #121*145*121
         self.bn1 = nn.BatchNorm3d(32)
         self.cv2 = nn.Conv3d(32, 64, 3, stride=1, padding=0)
         self.bn2 = nn.BatchNorm3d(64)
@@ -16,12 +16,13 @@ class Network(nn.Module):
         self.bn3 = nn.BatchNorm3d(128)
         self.cv4 = nn.Conv3d(128, 256, 3,stride=1, padding=0)
         self.bn4 = nn.BatchNorm3d(256)
-        self.cv5 = nn.Conv3d(256, 256, 3,stride=1, padding=0)
+        self.cv5 = nn.Conv3d(256, 256, 3,stride=1, padding=0) # 256*1*2
         self.bn5 = nn.BatchNorm3d(256)
         
         self.pool = nn.MaxPool3d(2)
 
         self.fc1 = nn.Linear(512, 1)
+        #self.fc2 = nn.Linear(256,6)
 
         self.d3d = nn.Dropout3d(0.2)
         
@@ -45,7 +46,6 @@ class Network(nn.Module):
 
         img = img.view(img.shape[0], -1)
         img = self.fc1(img)
-
         #img = self.dropout(F.relu(self.fc3(img)))
         #img = self.dropout(F.relu(self.fc4(img)))
         #img = self.dropout(F.relu(self.fc5(img)))
