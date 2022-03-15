@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import argparse
 import os
-from matplotlib import pyplot as plt
 
 import torch
 from torch import nn, optim
@@ -14,8 +13,10 @@ import torch.nn.functional as F
 
 from custom_dataset import CustomDataset
 from network import Network
+from utils import *
 
 from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.metrics import ConfusionMatrixDisplay
 from torch.utils.tensorboard import SummaryWriter
 
 #%%
@@ -121,7 +122,7 @@ for name, param in model.named_parameters():
         param.requires_grad = True
 
 model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(), nn.Dropout(p=0.2),
-                nn.Linear(256,6))
+                nn.Linear(256,11))
 
 
 #%%
@@ -191,8 +192,6 @@ for e in range(1,epochs+1):
 
                 pred = model(torch.unsqueeze(X,1).float())
 
-                
-
                 loss = criterion(pred,y.long())
 
                 valid_loss += loss.item()
@@ -214,25 +213,29 @@ for e in range(1,epochs+1):
         #compute the r square
 
         
-        plt.figure()
-        plt.plot(actual_train.detach().cpu().numpy(),pred_train.detach().cpu()
-                .numpy(),'.')
-        plt.title('Train - True vs pred')
-        plt.xlabel('True numeric_score')
-        plt.ylabel('Predicted numeric_score')
+        # plt.figure()
+        # plt.plot(actual_train.detach().cpu().numpy(),pred_train.detach().cpu()
+        #         .numpy(),'.')
+        # plt.title('Train - True vs pred')
+        # plt.xlabel('True numeric_score')
+        # plt.ylabel('Predicted numeric_score')
         
-        writer.add_figure('Train - True vs pred', plt.gcf(),e,True)
+        # writer.add_figure('Train - True vs pred', plt.gcf(),e,True)
         
 
-        plt.figure()
-        plt.plot(actual_valid.detach().cpu().numpy(),pred_valid.detach().cpu()
-                .numpy(),'.')
-        plt.title('Validation - True vs pred')
-        plt.xlabel('True score')
-        plt.ylabel('Predicted score')
+        # plt.figure()
+        # plt.plot(actual_valid.detach().cpu().numpy(),pred_valid.detach().cpu()
+        #         .numpy(),'.')
+        # plt.title('Validation - True vs pred')
+        # plt.xlabel('True score')
+        # plt.ylabel('Predicted score')
         
-        writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
+        # writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
 
+        write_confusion_matrix(writer, actual_train.detach().cpu().numpy(),
+            pred_train.detach().cpu().numpy(), e,'Confusion Matrix - Train' )
+        write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
+            pred_valid.detach().cpu().numpy(), e,'Confusion Matrix - Validation')
         print("Epoch: {}/{}.. ".format(e, epochs),
               "Training Loss: {:.3f}.. ".format(train_loss/len(train_loader)),
               "Validation Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),

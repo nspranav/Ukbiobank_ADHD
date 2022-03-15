@@ -132,7 +132,7 @@ class CustomDataset(Dataset):
             label = self.target_transform(label)
 
         #offset by 4 because of scores range from 4 to 9
-        return img,int(label-4)
+        return img,int(label)
 # %%
 
 

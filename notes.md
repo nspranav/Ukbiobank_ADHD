@@ -122,5 +122,11 @@
 #### Job [5937908](gpu4_5937908.txt) Using 2 FCS. No dropout on both FCs. Stratified Sampling: <span style="color:Green; font-weight: bold"> Done
     - Overfitting 
 
-#### Job [5938205](gpu4_5938205.txt) Using 2 FCs. Dropout p=0.2 on 2nd Fc. Stratified Sampling: <span style="color:Orange; font-weight: bold"> Running
+#### Job [5938205](gpu4_5938205.txt) Using 2 FCs. Dropout p=0.2 on 2nd Fc. Stratified Sampling: <span style="color:Green; font-weight: bold"> Done
+    - Overfitting. 
+
+#### Job [5938212](gpu4_5938212.txt) Using 2 FCs. Dropout p=0.2 on 2nd FC. Uses 11 outputs for 6 classes: <span style="color:Red; font-weight: bold"> Done
+    - Stopped due to preemption
+
+#### Job [5938402](gpu4_5938402.txt) Using 2 FCs. Added Confusion Matrix: <span style="color:Orange; font-weight: bold"> Running
     - 
