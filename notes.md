@@ -119,5 +119,5 @@
 #### Job [5937907](gpu4_5937907.txt) Using 2 FCs. With transfer learning. Stratified Sampling. 4 Layers fixed. 2 Dropouts on FCs: <span style="color:Orange; font-weight: bold"> Running
     - 
 
-#### Job [5937904](gpu4_5937904.txt) Using 2 FCS. Dropout on both FCs. Stratified Sampling: <span style="color:Orange; font-weight: bold"> Running
+#### Job [5937908](gpu4_5937908.txt) Using 2 FCS. Dropout on both FCs. Stratified Sampling: <span style="color:Orange; font-weight: bold"> Running
     - 
