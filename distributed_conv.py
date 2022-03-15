@@ -1,16 +1,21 @@
 #%%
 import numpy as np
+import pandas as pd
+import argparse
+import os
+from matplotlib import pyplot as plt
+
+import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
+import torch.nn.functional as F
+
 from custom_dataset import CustomDataset
 from network import Network
-import torch
-import argparse
-import os
-from matplotlib import pyplot as plt
-import torch.nn.functional as F
+
+from sklearn.model_selection import StratifiedShuffleSplit
 from torch.utils.tensorboard import SummaryWriter
 
 #%%
@@ -54,22 +59,32 @@ test_size = 0.10
 train_data = CustomDataset(transform = 
                         transforms.Compose([
                             transforms.RandomHorizontalFlip()
-                            ]),train = True)
+                            ]),train=True)
 
-valid_data = CustomDataset(train = False)
+valid_data = CustomDataset(train= False)
+
+# get filtered variables
+vars = valid_data.vars.loc[valid_data.dirs]
+
+# Prepare for stratified sampling
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=52)
+train_idx, test_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
+vars = vars.iloc[train_idx]
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=52)
+train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
 
 # obtaining indices that will be used for train, validation, and test
 
-num_train = len(train_data)
-indices = list(range(num_train))
-np.random.shuffle(indices)
-test_split = int(np.floor(test_size * num_train))
-test_idx, train_idx = indices[: test_split], indices[test_split : ]
+# num_train = len(train_data)
+# indices = list(range(num_train))
+# np.random.shuffle(indices)
+# test_split = int(np.floor(test_size * num_train))
+# test_idx, train_idx = indices[: test_split], indices[test_split : ]
 
-train_rem = len(train_idx)
-valid_spilt = int(np.floor(valid_size * train_rem))
+# train_rem = len(train_idx)
+# valid_spilt = int(np.floor(valid_size * train_rem))
 
-valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
+# valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
 
 train_sampler = SubsetRandomSampler(train_idx)
 valid_sampler = SubsetRandomSampler(valid_idx)
@@ -100,11 +115,13 @@ model.load_state_dict(torch.load(load_path))
 for name, param in model.named_parameters():
     if '5' not in name:
         param.requires_grad = False
+    else:
+        param.requires_grad = True
     if 'bn' in name:
         param.requires_grad = True
 
-model.fc1 = nn.Sequential(nn.Linear(512,256),
-                nn.Linear(256,6))
+model.fc1 = nn.Sequential(nn.Dropout(),nn.Linear(512,256),nn.ReLU(),
+                nn.Dropout(),nn.Linear(256,6))
 
 
 #%%

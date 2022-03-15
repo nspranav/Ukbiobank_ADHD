@@ -101,5 +101,23 @@
 #### Job [5720439](gpu4_5720439.txt) Distributed learning with 4 CONV layers fixed; Last CV layer has lr=1e-3 and FC layer has lr=1e-2: <span style="color:Green; font-weight: bold"> Done </span> 
     - MSE of 1.4 for train and 1.7 for validation
 
-#### Job [5932653](gpu4_5932653.txt) Using classification with scores of 4 to 9
+#### Job [5932653](gpu4_5932653.txt) Using classification with scores of 4 to 9:  <span style="color:Green; font-weight: bold"> Done
+    - Max accuracy is 32%
+    - Need more non linearity
+
+#### Job [5936860](gpu4_5936860.txt) Using 2 FC layers with scores of 4 to 9
+    - Overfitting. Validation score do not improve
+    - Colud be due to imbalance in train and valid splits
+
+#### Job [5936900](gpu4_5936900.txt) Using 2 FCs. Dropout for FC2. Stratified Sampling: <span style="color:Green; font-weight: bold"> Done
+    - Still overfitting. Validation score stuck at 0.32
+
+#### Job [5937301](gpu4_5937206.txt) Using 2 FCs. Removed transfer learning. Stratified Sampling: <span style="color:Green; font-weight: bold"> Done
+    - Under learning
+    - Need more non-linearity
+
+#### Job [5937907](gpu4_5937907.txt) Using 2 FCs. With transfer learning. Stratified Sampling. 4 Layers fixed. 2 Dropouts on FCs: <span style="color:Orange; font-weight: bold"> Running
+    - 
+
+#### Job [5937904](gpu4_5937904.txt) Using 2 FCS. Dropout on both FCs. Stratified Sampling: <span style="color:Orange; font-weight: bold"> Running
     - 
