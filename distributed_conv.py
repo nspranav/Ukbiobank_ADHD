@@ -120,7 +120,7 @@ for name, param in model.named_parameters():
     if 'bn' in name:
         param.requires_grad = True
 
-model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(),
+model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(), nn.Dropout(p=0.2),
                 nn.Linear(256,6))
 
 

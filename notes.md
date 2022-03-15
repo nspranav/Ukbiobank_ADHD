@@ -116,8 +116,11 @@
     - Under learning
     - Need more non-linearity
 
-#### Job [5937907](gpu4_5937907.txt) Using 2 FCs. With transfer learning. Stratified Sampling. 4 Layers fixed. 2 Dropouts on FCs: <span style="color:Orange; font-weight: bold"> Running
-    - 
+#### Job [5937907](gpu4_5937907.txt) Using 2 FCs. With transfer learning. Stratified Sampling. 4 Layers fixed. 2 Dropouts on FCs: <span style="color:Green; font-weight: bold"> Done
+    - Under fitting. Loss does not change
 
-#### Job [5937908](gpu4_5937908.txt) Using 2 FCS. Dropout on both FCs. Stratified Sampling: <span style="color:Orange; font-weight: bold"> Running
+#### Job [5937908](gpu4_5937908.txt) Using 2 FCS. No dropout on both FCs. Stratified Sampling: <span style="color:Green; font-weight: bold"> Done
+    - Overfitting 
+
+#### Job [5938205](gpu4_5938205.txt) Using 2 FCs. Dropout p=0.2 on 2nd Fc. Stratified Sampling: <span style="color:Orange; font-weight: bold"> Running
     - 
