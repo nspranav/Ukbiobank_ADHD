@@ -46,7 +46,7 @@ class CustomDataset(Dataset):
         
         # removing missing scores 
         self.misssing_scores = self.vars.loc[
-                        self.vars.score.isin([-1,2,3,10,11,12,np.NaN])].index
+                        self.vars.score.isin([-1,np.NaN])].index
 
         
         self.dirs = list(set(self.dirs) - set(self.misssing_scores) )
@@ -69,6 +69,14 @@ class CustomDataset(Dataset):
             img = nib.load(os.path.join(self.img_path,str(self.dirs[idx])
                             ,'ses_02/anat/Sm6mwc1pT1.nii.nii')).get_fdata()
         label = self.vars.loc[self.dirs[idx]].values[0]
+
+        ########################################
+        # Binning the values (2,3,4) and (9,10,11,12)
+
+        if label <= 4:
+            label = 4.0
+        elif label >=9:
+            label = 9.0
 
         ########################################
         #transforms to be done on every image with probability of 0.5

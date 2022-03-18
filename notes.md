@@ -128,5 +128,8 @@
 #### Job [5938212](gpu4_5938212.txt) Using 2 FCs. Dropout p=0.2 on 2nd FC. Uses 11 outputs for 6 classes: <span style="color:Red; font-weight: bold"> Done
     - Stopped due to preemption
 
-#### Job [5938402](gpu4_5938402.txt) Using 2 FCs. Added Confusion Matrix: <span style="color:Orange; font-weight: bold"> Running
-    - 
+#### Job [5938402](gpu4_5938402.txt) Using 2 FCs. Added Confusion Matrix: <span style="color:Orange; font-weight: bold"> Done
+    - Overfitting. Unable to learn the smaller class.
+
+#### Job [5938789](gpu4_5938789.txt) Using 2 FCs. With dropout. Added class weights: <span style="color:Orange; font-weight: bold"> Running
+    -

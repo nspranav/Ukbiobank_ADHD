@@ -122,14 +122,15 @@ for name, param in model.named_parameters():
         param.requires_grad = True
 
 model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(), nn.Dropout(p=0.2),
-                nn.Linear(256,11))
+                nn.Linear(256,10))
 
 
 #%%
 
 epochs = 100
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(params=model.parameters(), lr=0.03)
+criterion = nn.CrossEntropyLoss(weight=torch.tensor([0,0,0,0,4.26,1.79,0.62,
+                                                        0.50,0.84,2.24]).to(device))
+optimizer = optim.SGD(params=model.parameters(), lr=0.01)
 
 # adding regularization
 
@@ -236,6 +237,7 @@ for e in range(1,epochs+1):
             pred_train.detach().cpu().numpy(), e,'Confusion Matrix - Train' )
         write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
             pred_valid.detach().cpu().numpy(), e,'Confusion Matrix - Validation')
+
         print("Epoch: {}/{}.. ".format(e, epochs),
               "Training Loss: {:.3f}.. ".format(train_loss/len(train_loader)),
               "Validation Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),
@@ -243,7 +245,8 @@ for e in range(1,epochs+1):
               "validation Accuracy: {:.3f}..".format(num_correct_valid/len(valid_idx))
             )
               
-
+        writer.add_scalar('Train r2', r2_score(pred_train,actual_train))
+        writer.add_scalar('Valid r2', r2_score(pred_valid,actual_valid))
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
         writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
         writer.add_scalar('Train Accuracy',num_correct_train/len(train_idx),e)
