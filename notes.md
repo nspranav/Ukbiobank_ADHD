@@ -148,6 +148,7 @@
 #### Job [5943807](gpu4_5943807.txt) Using 2fcs. Without any dropouts on FCs: <span style="color:Orange; font-weight: bold"> Running
     - 
 
-#### 
+#### Job [5943809](gpu4_5943809.txt) Using 3Fcs. 2 bins. : <span style="color:Orange; font-weight: bold"> Running
+    -
  
 

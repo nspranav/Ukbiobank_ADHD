@@ -129,7 +129,7 @@ load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
 #         param.requires_grad = True
 
 model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(),
-                nn.Linear(256,2))
+                nn.Linear(256,128),nn.ReLU(),nn.Linear(128,2))
 
 
 #%%
