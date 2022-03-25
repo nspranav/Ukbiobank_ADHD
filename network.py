@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
-
+import torch
 
 class Network(nn.Module):
     """
@@ -37,7 +37,7 @@ class Network(nn.Module):
                         self.layer4, self.layer5)
         #self.classifier = nn.Sequential(nn.Dropout(),self.fc1)
 
-    def forward(self, img):
+    def forward(self, img,data=None):
 
         img = self.convs(img)
 
@@ -45,6 +45,12 @@ class Network(nn.Module):
         #img = F.relu(self.cv7(self.dropout(self.avgpool(img))))
 
         img = img.view(img.shape[0], -1)
+
+        # Adding sex data to the convoluted data
+        if data is not None:
+            with torch.no_grad():
+                img = torch.cat((img,torch.unsqueeze(data,1)),dim=1)
+        
         img = self.fc1(img)
         #img = self.dropout(F.relu(self.fc3(img)))
         #img = self.dropout(F.relu(self.fc4(img)))

@@ -16,7 +16,6 @@ from network import Network
 from utils import *
 
 from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.metrics import ConfusionMatrixDisplay
 from torch.utils.tensorboard import SummaryWriter
 
 #%%
@@ -51,6 +50,10 @@ torch.manual_seed(52)
 num_workers = 4
 # how many samples per batch to load
 batch_size = 25
+if torch.cuda.device_count() > 1:
+    batch_size *= torch.cuda.device_count()
+else:
+    batch_size = 10
 # percentage of training set to use as validation
 valid_size = 0.20
 # percentage of data to be used for testset
@@ -67,6 +70,10 @@ valid_data = CustomDataset(train= False)
 # get filtered variables
 vars = valid_data.vars.loc[valid_data.dirs]
 
+#######
+vars.loc[vars.score < 6,'score'] = 0.0
+vars.loc[vars.score > 6,'score'] = 1.0
+#######
 # Prepare for stratified sampling
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=52)
 train_idx, test_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
@@ -110,27 +117,26 @@ model = Network()
 
 load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
 
-model.load_state_dict(torch.load(load_path))
+#model.load_state_dict(torch.load(load_path))
 
 # Freezing the conv layers but not the Batch Norm Layers
-for name, param in model.named_parameters():
-    if '5' not in name:
-        param.requires_grad = False
-    else:
-        param.requires_grad = True
-    if 'bn' in name:
-        param.requires_grad = True
+# for name, param in model.named_parameters():
+#     if '5' not in name:
+#         param.requires_grad = False
+#     else:
+#         param.requires_grad = True
+#     if 'bn' in name:
+#         param.requires_grad = True
 
-model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(), nn.Dropout(p=0.2),
-                nn.Linear(256,10))
+model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(),
+                nn.Linear(256,2))
 
 
 #%%
 
 epochs = 100
-criterion = nn.CrossEntropyLoss(weight=torch.tensor([0,0,0,0,4.26,1.79,0.62,
-                                                        0.50,0.84,2.24]).to(device))
-optimizer = optim.SGD(params=model.parameters(), lr=0.01)
+criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.7810219 , 1.38961039]).to(device))
+optimizer = optim.SGD(params=model.parameters(), lr=0.07)
 
 # adding regularization
 
@@ -139,7 +145,6 @@ optimizer = optim.SGD(params=model.parameters(), lr=0.01)
 
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
-    batch_size *= torch.cuda.device_count()
 
 model.to(device)
 
@@ -167,6 +172,7 @@ for e in range(1,epochs+1):
 
         optimizer.zero_grad()
 
+        # Passing sex data to the forward method
         pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
 
         pred_train = torch.cat((pred_train,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
@@ -177,7 +183,7 @@ for e in range(1,epochs+1):
         optimizer.step()
         #print('loss =',loss.item())
         train_loss += loss.item()
-        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
+        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y[0]).view(-1)
         num_correct_train += torch.sum(correct).item()
     else:
         model.eval()
@@ -191,12 +197,16 @@ for e in range(1,epochs+1):
 
                 actual_valid = torch.cat((actual_valid,y),0)
 
-                pred = model(torch.unsqueeze(X,1).float())
-
-                loss = criterion(pred,y.long())
+                # Passing sex data to the forward method
+                pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
+                try:
+                    loss = criterion(pred,y)
+                except:
+                    print(pred)
+                    print(y)
 
                 valid_loss += loss.item()
-                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
+                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y[0]).view(-1)
                 pred_valid = torch.cat((pred_valid,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
                 num_correct_valid += torch.sum(correct).item()
 
@@ -245,8 +255,8 @@ for e in range(1,epochs+1):
               "validation Accuracy: {:.3f}..".format(num_correct_valid/len(valid_idx))
             )
               
-        writer.add_scalar('Train r2', r2_score(pred_train,actual_train))
-        writer.add_scalar('Valid r2', r2_score(pred_valid,actual_valid))
+        writer.add_scalar('Train r2', r2_score(pred_train,actual_train),e)
+        writer.add_scalar('Valid r2', r2_score(pred_valid,actual_valid),e)
         writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
         writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
         writer.add_scalar('Train Accuracy',num_correct_train/len(train_idx),e)

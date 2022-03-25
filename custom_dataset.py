@@ -33,8 +33,9 @@ class CustomDataset(Dataset):
         """
         self.dirs = np.array(self.dirs,dtype=int)
         self.vars = pd.read_csv(path+label_file,index_col='eid',
-                            usecols=['eid','maximum_digits_remembered_correctly_f4282_2_0'])
-        self.vars.columns = ['score']
+                            usecols=['eid','maximum_digits_remembered_correctly_f4282_2_0',
+                            'sex_f31_0_0'])
+        self.vars.columns = ['sex','score']
 
         #self.vars['score'] = self.vars['score'] + 1 
         
@@ -46,7 +47,7 @@ class CustomDataset(Dataset):
         
         # removing missing scores 
         self.misssing_scores = self.vars.loc[
-                        self.vars.score.isin([-1,np.NaN])].index
+                        self.vars.score.isin([-1,6,7,8,np.NaN])].index
 
         
         self.dirs = list(set(self.dirs) - set(self.misssing_scores) )
@@ -68,15 +69,17 @@ class CustomDataset(Dataset):
             ses2 = True
             img = nib.load(os.path.join(self.img_path,str(self.dirs[idx])
                             ,'ses_02/anat/Sm6mwc1pT1.nii.nii')).get_fdata()
-        label = self.vars.loc[self.dirs[idx]].values[0]
+        label = self.vars.loc[self.dirs[idx]]
 
         ########################################
         # Binning the values (2,3,4) and (9,10,11,12)
 
-        if label <= 4:
-            label = 4.0
-        elif label >=9:
-            label = 9.0
+        if label['score'] <= 6:
+            label['score'] = 0.0
+        # elif label['score'] >= 8:
+        #     label['score'] = 2.0
+        else:
+            label['score'] = 1.0
 
         ########################################
         #transforms to be done on every image with probability of 0.5
@@ -132,7 +135,7 @@ class CustomDataset(Dataset):
                     img = img[:-2,:,:]
  
 
-            #########################################
+        #########################################
             
         if self.transform:
             img = self.transform(img)
@@ -140,7 +143,7 @@ class CustomDataset(Dataset):
             label = self.target_transform(label)
 
         #offset by 4 because of scores range from 4 to 9
-        return img,int(label)
+        return img,int(label['score'])
 # %%
 
 

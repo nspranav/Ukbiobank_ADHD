@@ -131,5 +131,23 @@
 #### Job [5938402](gpu4_5938402.txt) Using 2 FCs. Added Confusion Matrix: <span style="color:Orange; font-weight: bold"> Done
     - Overfitting. Unable to learn the smaller class.
 
-#### Job [5938789](gpu4_5938789.txt) Using 2 FCs. With dropout. Added class weights: <span style="color:Orange; font-weight: bold"> Running
-    -
+#### Job [5938789](gpu4_5938789.txt) Using 2 FCs. With dropout on 2nd FC. Added class weights: <span style="color:Green; font-weight: bold"> Done
+    - Max accuracy at epoch 51. With accuracy of 0.288, 0.24
+
+#### Job [5939898](gpu4_5939898.txt) Using 2 FCs. Added class weights : <span style="color:Orange; font-weight: bold"> Running
+    - Best model performance of epoch 53. Accuracy of 29% and 24%
+
+#### Job [5939925](gpu4_5939925.txt) Using 2 FCs. Added class weights. Added Sex after Convs: <span style="color:Orange; font-weight: bold"> Running
+    - Not learning
+
+#### Job [5942991](gpu4_5942991.txt) Using 2 Fcs. With only 3 bins.
+
+#### Job [5943518](gpu4_5943518.txt) Using 2fcs. With dropout on 2nd fc. Only lower and upper memory scores: <span style="color:green; font-weight: bold"> Done 
+    - Accuracy of 54%
+
+#### Job [5943807](gpu4_5943807.txt) Using 2fcs. Without any dropouts on FCs: <span style="color:Orange; font-weight: bold"> Running
+    - 
+
+#### 
+ 
+
