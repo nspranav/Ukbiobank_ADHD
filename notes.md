@@ -148,7 +148,14 @@
 #### Job [5943807](gpu4_5943807.txt) Using 2fcs. Without any dropouts on FCs: <span style="color:Orange; font-weight: bold"> Running
     - 
 
-#### Job [5943809](gpu4_5943809.txt) Using 3Fcs. 2 bins. : <span style="color:Orange; font-weight: bold"> Running
+#### Job [5943809](gpu4_5943809.txt) Using 3Fcs. 2 bins. : <span style="color:Orange; font-weight: bold"> Done
     -
  
+#### Job [5943976](gpu4_594397.txt) Using 3Fcs. Lr=0.07   
+    - 
 
+#### Job [5943987](gpu4_5943987.txt) Using 3Fcs. Replaced with Tanh function for activation on the FCs.  
+    - 
+
+#### Job [5944302](gpu4_5944302.txt) Using 3 FCs. Random Under sampling of majority class. With weights
+    - 

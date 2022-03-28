@@ -16,6 +16,7 @@ from network import Network
 from utils import *
 
 from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.utils import resample
 from torch.utils.tensorboard import SummaryWriter
 
 #%%
@@ -73,11 +74,16 @@ vars = valid_data.vars.loc[valid_data.dirs]
 #######
 vars.loc[vars.score < 6,'score'] = 0.0
 vars.loc[vars.score > 6,'score'] = 1.0
+
+maj_class = resample(vars[vars.score < 1],n_samples = 2200)
+min_class = vars[vars.score < 1]
+new_vars = pd.concat([maj_class,min_class])
+
 #######
 # Prepare for stratified sampling
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=52)
-train_idx, test_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
-vars = vars.iloc[train_idx]
+train_idx, test_idx = next(sss.split(np.zeros_like(new_vars),new_vars.score.values))
+vars = new_vars.iloc[train_idx]
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=52)
 train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
 
@@ -128,15 +134,15 @@ load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
 #     if 'bn' in name:
 #         param.requires_grad = True
 
-model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(),
-                nn.Linear(256,128),nn.ReLU(),nn.Linear(128,2))
+model.fc1 = nn.Sequential(nn.Linear(512,256),nn.Tanh(),
+                nn.Linear(256,128),nn.Tanh(),nn.Linear(128,2),nn.Tanh())
 
 
 #%%
 
 epochs = 100
-criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.7810219 , 1.38961039]).to(device))
-optimizer = optim.SGD(params=model.parameters(), lr=0.07)
+criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.7810219 , 1.0]).to(device))
+optimizer = optim.SGD(params=model.parameters(), lr=0.01)
 
 # adding regularization
 

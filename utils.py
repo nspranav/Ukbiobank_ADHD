@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import matthews_corrcoef
 from matplotlib import pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 import math
@@ -16,6 +17,8 @@ def write_confusion_matrix(writer:SummaryWriter, true_values:np.ndarray,
                             pred_values:np.ndarray, 
                             e: int, message:str):
     ConfusionMatrixDisplay.from_predictions(true_values, pred_values)
+    mcc = matthews_corrcoef(true_values,pred_values)
+    plt.title('MCC= '+str(mcc))
     writer.add_figure(message, plt.gcf(),e,True)
 
 def find_lr(model, train_loader, loss_fn, optimizer, init_value=1e-8, final_value=10.0,
