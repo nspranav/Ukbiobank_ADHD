@@ -7,7 +7,7 @@ import nibabel as nib
 import torch
 from torchvision import transforms
 import random
-
+from sklearn.utils import resample
 #%%
 
 class CustomDataset(Dataset):
@@ -46,11 +46,19 @@ class CustomDataset(Dataset):
         #                       missing_values=np.nan).fit_transform(self.vars)
         
         # removing missing scores 
-        self.misssing_scores = self.vars.loc[
-                        self.vars.score.isin([-1,6,7,8,np.NaN])].index
+        self.vars = self.vars.loc[
+                        self.vars.score.isin([2,3,4,5,9,10,11,12])]
 
+        #######
+        self.vars['new_score'] = [0 if a < 6 else 1 for a in self.vars['score']]
+
+        maj_class = resample(self.vars[self.vars.new_score == 0],n_samples = 2150,replace=False)
+        min_class = self.vars[self.vars.new_score == 1]
+        self.vars = pd.concat([maj_class,min_class])
+
+        #######
         
-        self.dirs = list(set(self.dirs) - set(self.misssing_scores) )
+        self.dirs = self.vars.index
 
         self.transform = transform
         self.target_transform = target_transform
@@ -69,24 +77,16 @@ class CustomDataset(Dataset):
             ses2 = True
             img = nib.load(os.path.join(self.img_path,str(self.dirs[idx])
                             ,'ses_02/anat/Sm6mwc1pT1.nii.nii')).get_fdata()
-        label = self.vars.loc[self.dirs[idx]]
+        label = self.vars.iloc[idx]
 
         ########################################
-        # Binning the values (2,3,4) and (9,10,11,12)
 
-        if label['score'] <= 6:
-            label['score'] = 0.0
-        # elif label['score'] >= 8:
-        #     label['score'] = 2.0
-        else:
-            label['score'] = 1.0
-
-        ########################################
         #transforms to be done on every image with probability of 0.5
 
-        if self.train:
-            img = torch.tensor(img)
+        
+        img = torch.tensor(img)
 
+        if self.train:
             p = random.random()
             if p > 0.5:
                 t = transforms.Pad((1,1,1,1),0)
@@ -135,7 +135,7 @@ class CustomDataset(Dataset):
                     img = img[:-2,:,:]
  
 
-        #########################################
+        ########################################
             
         if self.transform:
             img = self.transform(img)
@@ -143,7 +143,7 @@ class CustomDataset(Dataset):
             label = self.target_transform(label)
 
         #offset by 4 because of scores range from 4 to 9
-        return img,int(label['score'])
+        return img,int(label['new_score'])
 # %%
 
 

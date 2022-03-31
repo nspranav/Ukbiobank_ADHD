@@ -16,7 +16,6 @@ from network import Network
 from utils import *
 
 from sklearn.model_selection import StratifiedShuffleSplit
-from sklearn.utils import resample
 from torch.utils.tensorboard import SummaryWriter
 
 #%%
@@ -38,12 +37,14 @@ if not os.path.exists(path):
     os.mkdir(path)
     os.mkdir(model_save_path)
 
+writer = SummaryWriter(log_dir=path)
+
 #%%
 
 ########################
 # Loading the Data #####
 ########################
-writer = SummaryWriter(log_dir=path)
+
 
 
 torch.manual_seed(52)
@@ -69,21 +70,12 @@ train_data = CustomDataset(transform =
 valid_data = CustomDataset(train= False)
 
 # get filtered variables
-vars = valid_data.vars.loc[valid_data.dirs]
+vars = valid_data.vars
 
-#######
-vars.loc[vars.score < 6,'score'] = 0.0
-vars.loc[vars.score > 6,'score'] = 1.0
-
-maj_class = resample(vars[vars.score < 1],n_samples = 2200)
-min_class = vars[vars.score < 1]
-new_vars = pd.concat([maj_class,min_class])
-
-#######
 # Prepare for stratified sampling
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=52)
-train_idx, test_idx = next(sss.split(np.zeros_like(new_vars),new_vars.score.values))
-vars = new_vars.iloc[train_idx]
+train_idx, test_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
+vars = vars.iloc[train_idx]
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=52)
 train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
 
@@ -134,15 +126,15 @@ load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
 #     if 'bn' in name:
 #         param.requires_grad = True
 
-model.fc1 = nn.Sequential(nn.Linear(512,256),nn.Tanh(),
-                nn.Linear(256,128),nn.Tanh(),nn.Linear(128,2),nn.Tanh())
+model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(),
+                nn.Linear(256,128),nn.ReLU(),nn.Linear(128,2))
 
 
 #%%
 
-epochs = 100
+epochs = 250
 criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.7810219 , 1.0]).to(device))
-optimizer = optim.SGD(params=model.parameters(), lr=0.01)
+optimizer = optim.SGD(params=model.parameters(), lr=0.001)
 
 # adding regularization
 
@@ -171,7 +163,7 @@ for e in range(1,epochs+1):
     pred_valid = torch.tensor([]).to(device)
 
     for X,y in train_loader:
-        
+
         X,y = X.to(device),y.to(device)
 
         actual_train = torch.cat((actual_train,y),0)
@@ -189,7 +181,7 @@ for e in range(1,epochs+1):
         optimizer.step()
         #print('loss =',loss.item())
         train_loss += loss.item()
-        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y[0]).view(-1)
+        correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
         num_correct_train += torch.sum(correct).item()
     else:
         model.eval()
@@ -212,7 +204,7 @@ for e in range(1,epochs+1):
                     print(y)
 
                 valid_loss += loss.item()
-                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y[0]).view(-1)
+                correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
                 pred_valid = torch.cat((pred_valid,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
                 num_correct_valid += torch.sum(correct).item()
 
@@ -249,16 +241,20 @@ for e in range(1,epochs+1):
         
         # writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
 
-        write_confusion_matrix(writer, actual_train.detach().cpu().numpy(),
+        mcc_t,f1_t = write_confusion_matrix(writer, actual_train.detach().cpu().numpy(),
             pred_train.detach().cpu().numpy(), e,'Confusion Matrix - Train' )
-        write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
+        mcc_v,f1_v = write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
             pred_valid.detach().cpu().numpy(), e,'Confusion Matrix - Validation')
 
         print("Epoch: {}/{}.. ".format(e, epochs),
-              "Training Loss: {:.3f}.. ".format(train_loss/len(train_loader)),
-              "Validation Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),
+            #   "Training Loss: {:.3f}.. ".format(train_loss/len(train_loader)),
+            #   "Validation Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),
               'Train Accuracy: {:.3f}..'.format(num_correct_train/len(train_idx)),
-              "validation Accuracy: {:.3f}..".format(num_correct_valid/len(valid_idx))
+              "validation Accuracy: {:.3f}..".format(num_correct_valid/len(valid_idx)),
+              f'mcc_t: {mcc_t:.3f}..',
+              f'mcc_v: {mcc_v:.3f}..',
+              f'f1_t: {f1_t:.3f}..',
+              f'f1_v: {f1_v:.3f}..',
             )
               
         writer.add_scalar('Train r2', r2_score(pred_train,actual_train),e)

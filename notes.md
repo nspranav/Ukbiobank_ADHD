@@ -157,5 +157,10 @@
 #### Job [5943987](gpu4_5943987.txt) Using 3Fcs. Replaced with Tanh function for activation on the FCs.  
     - 
 
-#### Job [5944302](gpu4_5944302.txt) Using 3 FCs. Random Under sampling of majority class. With weights
-    - 
+#### Job [5944417](gpu4_5944417.txt) Using 3 FCs. Random Under sampling of majority class. With weights
+    - Need to rerun
+
+#### Job [5944780](gpu4_5944780.txt) Using 3 Fcs. Random oversampling of both classes to 10000 each
+    - Excellent learning. But the network has inflated validation results
+    
+
