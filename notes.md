@@ -163,4 +163,58 @@
 #### Job [5944780](gpu4_5944780.txt) Using 3 Fcs. Random oversampling of both classes to 10000 each
     - Excellent learning. But the network has inflated validation results
     
+#### Job [5945520](gpu4_5944780.txt) Using 3 FCs. RUS with augmentation. 
+    - Reduced overfitting
 
+#### Job [5945520](gpu4_5945520.txt) Using 3 Fcs. RUS without augmentation.
+    - Epoch 114. Training,validation : 79, 72 
+
+#### Job [5950035](gpu4_5950035.txt) Using 3 FCs. RUS with augmentation.
+    - Epoch 181. Training 73 validation 65. 
+
+#### Job [5950094](gpu4_5950094.txt) Using 3 FCs. RUS without augmentation.
+    - 
+
+#### Job [5950165](gpu4_5950165.txt) sing 3 FCs. RUS without augmentation. With stratified sampling.
+    - 
+
+
+
+# Presenting the results
+## Transfer vs No transfer learning
+## How to get the error interval?
+
+# Focus on transfer learning benefits.
+    ## Udersampling (graph showing the mean and std)
+    ## with and without transfer learning
+# Brain regions
+    ## Important regions
+
+
+#### Job [6055826](gpu4_6055905.txt) Using 
+#### Job [6055905](gpu4_6055905.txt) Using 3 FCs without augmentation and no transfer learning
+#### Job [6056972](gpu4_6056972.txt) Using random state 62
+#### Job [6057006](gpu4_6057006.txt) Using random state 72
+#### Job [6057125](gpu4_6057125.txt) Using random state 82
+#### Job [6060702](gpu4_6060702.txt) Using random state 112
+#### Job [6060739](gpu4_6060739.txt) Using random state 52 - Retesting
+
+#### Job [6061548](gpu4_6061548.txt) Freezing 3 conv layers. 2 FC layers 
+#### Job [6061553](gpu4_6061553.txt) Freezing 3 conv layers. 2 Fc with dropout on 1. 
+#### Job [6061729](gpu4_6061729.txt) Freezing 3 conv. 2 Fc with dropout on 1. With momentum 1e-4
+#### Job [6061756](gpu4_6061756.txt) Freezing 3 conv. lr=0.001,momentum=1e-5
+#### Job [6062617](gpu4_6062617.txt) Freezing 3 conv. lr=0.001,momentum=1e-6
+#### Job [6064280](gpu4_6064280.txt) Freezing 3 conv. lr=0.001,momentum=1e-6. drop 0.1, rs=112
+#### Job [6065946](gpu4_6065946.txt) Same. Sample sie increased to 2250 for 0s, rs=112
+#### Job [6066159](gpu4_6066159.txt) Same. rs=52
+
+
+#####
+# 1. BrainAge model
+    i) 5-cross validation - 5 models (Each model having differnt hyperparameters)
+
+
+#####
+# 1. Hyper parameter tuning for brain age
+
+Job [6159380](gpu4_6159380.txt)  Fc layers= 1. 

@@ -36,6 +36,7 @@ class Network(nn.Module):
         self.convs = nn.Sequential(self.layer1,self.layer2,self.layer3,
                         self.layer4, self.layer5)
         #self.classifier = nn.Sequential(nn.Dropout(),self.fc1)
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, img,data=None):
 
@@ -51,7 +52,7 @@ class Network(nn.Module):
             with torch.no_grad():
                 img = torch.cat((img,torch.unsqueeze(data,1)),dim=1)
         
-        img = self.fc1(img)
+        img = self.fc1(self.dropout(img))
         #img = self.dropout(F.relu(self.fc3(img)))
         #img = self.dropout(F.relu(self.fc4(img)))
         #img = self.dropout(F.relu(self.fc5(img)))

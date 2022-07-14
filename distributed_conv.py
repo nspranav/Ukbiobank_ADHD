@@ -67,17 +67,17 @@ train_data = CustomDataset(transform =
                             transforms.RandomHorizontalFlip()
                             ]),train=True)
 
-valid_data = CustomDataset(train= False)
+valid_data = CustomDataset(train=False)
 
 # get filtered variables
 vars = valid_data.vars
 
 # Prepare for stratified sampling
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=52)
-train_idx, test_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
+train_idx, test_idx = next(sss.split(np.zeros_like(vars),vars.new_score.values))
 vars = vars.iloc[train_idx]
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=52)
-train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.score.values))
+train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.new_score.values))
 
 # obtaining indices that will be used for train, validation, and test
 
@@ -115,29 +115,26 @@ model = Network()
 
 load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
 
-#model.load_state_dict(torch.load(load_path))
+model.load_state_dict(torch.load(load_path))
 
-# Freezing the conv layers but not the Batch Norm Layers
-# for name, param in model.named_parameters():
-#     if '5' not in name:
-#         param.requires_grad = False
-#     else:
-#         param.requires_grad = True
-#     if 'bn' in name:
-#         param.requires_grad = True
+#Freezing the conv layers but not the Batch Norm Layers
+for name, param in model.named_parameters():
+    if '5' in name or '4' in name:
+        param.requires_grad = True
+    else:
+        param.requires_grad = False
 
-model.fc1 = nn.Sequential(nn.Linear(512,256),nn.ReLU(),
-                nn.Linear(256,128),nn.ReLU(),nn.Linear(128,2))
+model.fc1 = nn.Sequential(nn.Linear(512,128),nn.ReLU(),nn.Dropout(0.1),
+                nn.Linear(128,2),nn.ReLU())
+
+print(model)
 
 
 #%%
 
 epochs = 250
-criterion = nn.CrossEntropyLoss(weight=torch.tensor([0.7810219 , 1.0]).to(device))
-optimizer = optim.SGD(params=model.parameters(), lr=0.001)
-
-# adding regularization
-
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.SGD(params=model.parameters(), lr=0.001,momentum=1e-6)
 
 #%%
 
@@ -175,8 +172,10 @@ for e in range(1,epochs+1):
 
         pred_train = torch.cat((pred_train,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
         
+        #Adding regularization
+        # l1_lambda = 0.001
+        # l1_norm = sum(p.abs().sum() for p in model.parameters())
         loss = criterion(pred,y)
-
         loss.backward()
         optimizer.step()
         #print('loss =',loss.item())
