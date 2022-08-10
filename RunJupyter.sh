@@ -2,9 +2,9 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 2
-#SBATCH --mem=44g
-#SBATCH --gres=gpu:v100:1
-#SBATCH -p qTRDGPUH
+#SBATCH --mem=150g
+#SBATCH --gres=gpu:v100:4
+#SBATCH -p qTRDGPUM
 #SBATCH -t 7680
 #SBATCH -J Jupyter
 #SBATCH -e error%A.err

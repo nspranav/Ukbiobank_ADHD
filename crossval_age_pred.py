@@ -96,7 +96,7 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars)):
     print("Using {} device".format(device))
 
     model = Network()
-    model.fc1 = nn.Sequential(nn.Linear(512,1))
+    model.fc1 = nn.Sequential(nn.Linear(512,2))
 
     print(model)
 
@@ -104,8 +104,8 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars)):
     #%%
 
     epochs = 75
-    criterion = nn.L1Loss()
-    optimizer = optim.SGD(params=model.parameters(), lr=0.0001)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(params=model.parameters(), lr=0.001)
 
     #%%
 
@@ -119,6 +119,7 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars)):
     for e in range(1,epochs+1):
         model.train()
         train_loss = 0
+        num_correct_train = 0
 
         actual_train = torch.tensor([]).to(device)
         actual_valid = torch.tensor([]).to(device)
@@ -136,12 +137,13 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars)):
             # Passing sex data to the forward method
             pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
 
-            pred_train = torch.cat((pred_train,pred),0)
-            loss = criterion(pred,y.float())
+            pred_train = torch.cat((pred_train,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
+            loss = criterion(pred,y)
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
-
+            correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
+            num_correct_train += torch.sum(correct).item()
         else:
             model.eval()
             valid_loss = 0
@@ -155,31 +157,35 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars)):
                     actual_valid = torch.cat((actual_valid,y),0)
                     pred = torch.squeeze(model(torch.unsqueeze(X,1).float()))
                     try:
-                        loss = criterion(pred,y.float())
+                        loss = criterion(pred,y)
                     except:
                         print(pred)
                         print(y)
 
                     valid_loss += loss.item()
-                    pred_valid = torch.cat((pred_valid,pred),0)
+                    correct = torch.eq(torch.max(F.softmax(pred,dim=1), dim=1)[1],y).view(-1)
+                    pred_valid = torch.cat((pred_valid,torch.max(F.softmax(pred,dim=1), dim=1)[1]),0)
+                    num_correct_valid += torch.sum(correct).item()
 
             print("Epoch: {}/{}.. ".format(e, epochs),
-                "Training Loss: {:.3f}.. ".format(train_loss/len(train_loader)),
-                "Validation Loss: {:.3f}.. ".format(valid_loss/len(valid_loader)),
+                "Training Accuracy: {:.3f}.. ".format(num_correct_train/len(train_idx)),
+                "Validation Accuracy: {:.3f}.. ".format(num_correct_valid/len(valid_idx))
                 )
                 
             writer.add_scalar('Train r2', r2_score(pred_train,actual_train),e)
             writer.add_scalar('Valid r2', r2_score(pred_valid,actual_valid),e)
             writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
             writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
-
+            writer.add_scalar('Train Accuracy',num_correct_train/len(train_idx),e)
+            writer.add_scalar('validation Accuracy', num_correct_valid/len(valid_idx),e)
+            
             if abs(valid_loss/len(valid_loader) - train_loss/len(train_loader)) < 0.2:
-                fold_path = os.path.join(model_save_path,str(fold),
-                    'epoch_'+str(e))
+                fold_path = os.path.join(model_save_path,str(fold))
 
                 if not os.path.exists(fold_path):
-                    os.mkdir(fold_path)
-                torch.save(model.state_dict(), fold_path)
+                    os.makedirs(fold_path)
+                torch.save(model.state_dict(), os.path.join(fold_path,
+                    'epoch_'+str(e)))
 
     fold+=1
     print('####################################################################')

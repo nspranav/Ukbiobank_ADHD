@@ -34,9 +34,9 @@ class CustomDataset(Dataset):
         """
         self.dirs = np.array(self.dirs,dtype=int)
         self.vars = pd.read_csv(path+label_file,index_col='eid',
-                            usecols=['eid','age_when_attended_assessment_centre_f21003_0_0',
+                            usecols=['eid','maximum_digits_remembered_correctly_f4282_2_0',
                             'sex_f31_0_0'])
-        self.vars.columns = ['sex','age']
+        self.vars.columns = ['sex','score']
 
         #self.vars['score'] = self.vars['score'] + 1 
         
@@ -46,25 +46,25 @@ class CustomDataset(Dataset):
         #self.vars['score'] = SimpleImputer(strategy='mean',
         #                       missing_values=np.nan).fit_transform(self.vars)
         
-        # # removing missing scores 
-        # self.vars = self.vars.loc[
-        #                 self.vars.score.isin([2,3,4,5,9,10,11,12])]
+        # removing missing scores 
+        self.vars = self.vars.loc[
+                        self.vars.score.isin([2,3,4,5,9,10,11,12])]
 
-        # #######
-        # self.vars['new_score'] = [0 if a < 6 else 1 for a in self.vars['score']]
+        #######
+        self.vars['new_score'] = [0 if a < 6 else 1 for a in self.vars['score']]
 
-        # # We want sampling only during the training and validation and not for
-        # # testing the fixed model
+        # We want sampling only during the training and validation and not for
+        # testing the fixed model
         
-        # if not test:
-        #     maj_class = resample(self.vars[self.vars.new_score == 0],
-        #             n_samples = 2250,replace=False,random_state=random_state)
-        #     min_class = self.vars[self.vars.new_score == 1]
-        #     self.vars = pd.concat([maj_class,min_class])
+        if not test:
+            maj_class = resample(self.vars[self.vars.new_score == 0],
+                    n_samples = 2250,replace=False,random_state=random_state)
+            min_class = self.vars[self.vars.new_score == 1]
+            self.vars = pd.concat([maj_class,min_class])
 
-        #     # Need to sort by index because we want the order of data same for
-        #     # both the train and validation dataset
-        self.vars.drop([1336082,2464107, 4158450, 3429974, 4468630],inplace=True)
+        # Need to sort by index because we want the order of data same for
+        # both the train and validation dataset
+        #self.vars.drop([1336082,2464107, 4158450, 3429974, 4468630],inplace=True)
         self.vars = self.vars.sort_index()
         
         #######
@@ -149,7 +149,7 @@ class CustomDataset(Dataset):
                 label = self.target_transform(label)
 
         #offset by 4 because of scores range from 4 to 9
-        return img,int(label['age'])
+        return img,int(label['new_score'])
 # %%
 
 

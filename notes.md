@@ -214,7 +214,14 @@
     i) 5-cross validation - 5 models (Each model having differnt hyperparameters)
 
 
-#####
-# 1. Hyper parameter tuning for brain age
 
-Job [6159380](gpu4_6159380.txt)  Fc layers= 1. 
+# Hyper parameter tuning for brain age
+
+### Job [6164265](gpu4_6164265.txt) Fc layers = 1
+### Job [6173079](gpu4_6173079.txt) Fc layers = 2 
+### Job [6183834](gpu4_6183834.txt) Fc layers = 3
+### Job [6189282](gpu4_6189282.txt) Fc layers = 4
+
+# Hyper parameter - layers tuning for working memory prediction
+
+### Job [6239512](gpu4_6239512.txt) Fc layers = 1
