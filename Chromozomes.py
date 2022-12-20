@@ -1,5 +1,6 @@
 #%%
 import subprocess
+import os
 
 path = '/data/users2/pnadigapusuresh1/Projects/ukbiobank/Data/'
 #%%

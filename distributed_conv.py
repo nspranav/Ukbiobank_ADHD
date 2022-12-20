@@ -59,7 +59,7 @@ else:
 # percentage of training set to use as validation
 valid_size = 0.20
 # percentage of data to be used for testset
-test_size = 0.10
+# test_size = 0.10
 
 
 train_data = CustomDataset(transform = 
@@ -67,17 +67,17 @@ train_data = CustomDataset(transform =
                             transforms.RandomHorizontalFlip()
                             ]),train=True)
 
-valid_data = CustomDataset(train=False)
+
+test_data = CustomDataset(train=False,valid=False)
 
 # get filtered variables
-vars = valid_data.vars
+vars = train_data.vars
 
 # Prepare for stratified sampling
-sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=52)
-train_idx, test_idx = next(sss.split(np.zeros_like(vars),vars.new_score.values))
-vars = vars.iloc[train_idx]
 sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=52)
 train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.new_score.values))
+vars = vars.iloc[train_idx]
+
 
 # obtaining indices that will be used for train, validation, and test
 
@@ -94,15 +94,15 @@ train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.new_score.values)
 
 train_sampler = SubsetRandomSampler(train_idx)
 valid_sampler = SubsetRandomSampler(valid_idx)
-test_sampler = SubsetRandomSampler(test_idx)
+test_sampler = SubsetRandomSampler(train_data.test_idx)
 
 train_loader = DataLoader(train_data,batch_size=batch_size, 
                             sampler= train_sampler, num_workers=num_workers)
-valid_loader = DataLoader(valid_data,batch_size=batch_size, 
+valid_loader = DataLoader(train_data,batch_size=batch_size, 
                             sampler= valid_sampler, num_workers=num_workers)
-test_loader = DataLoader(valid_data,batch_size = batch_size, 
-                            sampler = test_sampler, num_workers=num_workers)
 
+test_loader = DataLoader(test_data,batch_size=batch_size,
+                            sampler= test_sampler, num_workers=num_workers)
 # %%
 
 
@@ -111,21 +111,26 @@ print("Using {} device".format(device))
 
 model = Network()
 
+model.fc1 = nn.Sequential(nn.Linear(512,2))
+model = nn.DataParallel(model)
+model.to(device)
+
 # Loading the model from Job 5436878
+#load model
+#load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
 
-load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
-
+load_path = os.path.join(parent_directory,'1818979','models_fold','5','epoch_38')
 model.load_state_dict(torch.load(load_path))
 
-#Freezing the conv layers but not the Batch Norm Layers
-for name, param in model.named_parameters():
-    if '5' in name or '4' in name:
-        param.requires_grad = True
-    else:
-        param.requires_grad = False
 
-model.fc1 = nn.Sequential(nn.Linear(512,128),nn.ReLU(),nn.Dropout(0.1),
-                nn.Linear(128,2),nn.ReLU())
+#Freezing the conv layers but not the Batch Norm Layers
+# for name, param in model.named_parameters():
+#     if '5' in name or '4' in name:
+#         param.requires_grad = True
+#     else:
+#         param.requires_grad = False
+
+# model.fc1 = nn.Sequential(nn.Linear(512,2))
 
 print(model)
 
@@ -240,9 +245,9 @@ for e in range(1,epochs+1):
         
         # writer.add_figure('Validation - True vs pred', plt.gcf(),e,True)
 
-        mcc_t,f1_t = write_confusion_matrix(writer, actual_train.detach().cpu().numpy(),
+        mcc_t,f1_t,b_a_t = write_confusion_matrix(writer, actual_train.detach().cpu().numpy(),
             pred_train.detach().cpu().numpy(), e,'Confusion Matrix - Train' )
-        mcc_v,f1_v = write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
+        mcc_v,f1_v,b_a_v = write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
             pred_valid.detach().cpu().numpy(), e,'Confusion Matrix - Validation')
 
         print("Epoch: {}/{}.. ".format(e, epochs),
@@ -256,10 +261,10 @@ for e in range(1,epochs+1):
               f'f1_v: {f1_v:.3f}..',
             )
               
-        writer.add_scalar('Train r2', r2_score(pred_train,actual_train),e)
-        writer.add_scalar('Valid r2', r2_score(pred_valid,actual_valid),e)
-        writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
-        writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
+        #writer.add_scalar('Train r2', r2_score(pred_train,actual_train),e)
+        #writer.add_scalar('Valid r2', r2_score(pred_valid,actual_valid),e)
+        #writer.add_scalar('Train Loss', train_loss/len(train_loader),e)
+        #writer.add_scalar('Validation Loss', valid_loss/len(valid_loader),e)
         writer.add_scalar('Train Accuracy',num_correct_train/len(train_idx),e)
         writer.add_scalar('validation Accuracy', num_correct_valid/len(valid_idx),e)
         if abs(valid_loss/len(valid_loader) - train_loss/len(train_loader)) < 0.2:

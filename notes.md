@@ -224,4 +224,14 @@
 
 # Hyper parameter - layers tuning for working memory prediction
 
-### Job [6239512](gpu4_6239512.txt) Fc layers = 1
+### Job [6239512](gpu4_6239512.txt) Fc layers = 1 | Job [1467748](gpu4_1467748.txt) using stratified sampling extending previous job | Job [1468529](gpu4_1468529.txt) with stratified sampling and starting from random | transfer learning from 6164265 w stratified sampling job[1470615](gpu4_1470615.txt) | Job [1471987](gpu4_1471987.txt), [1489808](gpu4_1489808.txt) stratified sampling, no transfer learning.
+### Job [6297626](gpu4_6297626.txt) Fc Layers = 2
+### Job [6297747](gpu4_6297747.txt) Fc Layers = 3
+### Job [1364551](gpu4_1364551.txt) Fc Layers = 4
+### Job [1369811](gpu4_1369811.txt) Fc layers = 5
+
+# Using transfer learning
+
+# Hyper parameter - layers freezing for working memory prediction
+### Using the model from 6239512, fold 4, Job [1459137](gpu4_1459137.txt) Freezing all convolutional layers and training only Fc1 layer. 
+### Same as above but no sampling for data balancing this time. However, there is stratified sampling. Job [1463458](gpu4_1463458.txt) | Job [1472150](gpu4_1472150.txt), [1491980](gpu4_1491980.txt) freezing all the layers except final layer of Job 1471987|| Job [1472243](gpu4_1472243.txt), [1493144](gpu4_1493144.txt),[1502833](gpu4_1502833.txt) ufreeze last conv and fc1 layer of 1471987 || Job [1472387](gpu4_1472387.txt), [1502288](gpu4_1502288.txt) unfreeze last 2 conv and fc1 layer || Job [1472991](gpu4_1472991.txt),[1504485](gpu4_1504485.txt) unfreeze last 3 conv and fc1 layer; Job [1780660](gpu4_1780660.txt)further training 1504485 by loading model from 'models_fold','2','epoch_45'; [1818979](gpu4_1818979.txt) '1504485','models_fold','2','epoch_45' with standardized subjects   || Job [1505740](gpu4_1505740.txt) unfreeze last 4 conv layers and fc layer  

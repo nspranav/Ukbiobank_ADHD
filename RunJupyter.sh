@@ -1,22 +1,22 @@
 #!/bin/bash
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -c 2
-#SBATCH --mem=150g
-#SBATCH --gres=gpu:v100:4
-#SBATCH -p qTRDGPUM
-#SBATCH -t 7680
+#SBATCH -c 4
+#SBATCH --mem=80g
+#SBATCH --gres=gpu:V100:2
+#SBATCH -t 2-00:00
+#SBATCH -p qTRDGPUH
 #SBATCH -J Jupyter
 #SBATCH -e error%A.err
-#SBATCH -o out%A.out
-#SBATCH -A PSYC0005
+#SBATCH -o gpu4_%A.txt
+#SBATCH -A trends396s109
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nspranav1180@gmail.com
 #SBATCH --oversubscribe
 
 echo $HOSTNAME >&2 
 
-source /home/users/pnadigapusuresh1/anaconda3/bin/activate latest
+source /data/users2/pnadigapusuresh1/software/bin/activate latest
 
-jupyter notebook --no-browser --port=44444 --ip=0.0.0.0
+jupyter lab --no-browser --port=44444 --ip=0.0.0.0
 
