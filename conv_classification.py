@@ -1,4 +1,6 @@
 #%%
+import argparse
+import os
 import sys
 import numpy as np
 from numpy.core.numeric import indices
@@ -10,14 +12,32 @@ from custom_dataset import CustomDataset
 from network_classification import Network_classification
 import torch
 from torch.optim.lr_scheduler import StepLR
-
+from sklearn.model_selection import StratifiedShuffleSplit
+from torch.utils.tensorboard import SummaryWriter
 
 #%%
+parser = argparse.ArgumentParser()
+parser.add_argument('job_id',type=str)
+args = parser.parse_args()
+print(args.job_id)
+print('number of gpus ',torch.cuda.device_count())
+
+#creating directory
+
+directory = args.job_id
+parent_directory = '/data/users2/pnadigapusuresh1/JobOutputs'
+path = os.path.join(parent_directory,directory)
+model_save_path = os.path.join(path,'models')
+
+if not os.path.exists(path):
+    os.mkdir(path)
+    os.mkdir(model_save_path)
+
+writer = SummaryWriter(log_dir=path)
 
 ########################
 # Loading the Data #####
 ########################
-
 
 # number of subprocesses to use for data loading
 num_workers = 4
@@ -31,31 +51,25 @@ test_size = 0.05
 
 data = CustomDataset(transform = 
                         transforms.Compose([
-                        transforms.ToTensor()]))
+                        transforms.ToTensor()]),train=True)
+test_data = CustomDataset(train=False,valid=False)
 
 
 # obtaining indices that will be used for train, validation, and test
 
-num_train = len(data)
-indices = list(range(num_train))
-np.random.shuffle(indices)
-test_split = int(np.floor(test_size * num_train))
-test_idx, train_idx = indices[: test_split], indices[test_split : ]
-
-train_rem = len(train_idx)
-valid_spilt = int(np.floor(valid_size * train_rem))
-
-valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=52)
+train_idx, valid_idx = next(sss.split(np.zeros_like(data.vars),
+    data.vars.new_score.values))
 
 train_sampler = SubsetRandomSampler(train_idx)
 valid_sampler = SubsetRandomSampler(valid_idx)
-test_sampler = SubsetRandomSampler(test_idx)
+test_sampler = SubsetRandomSampler(test_data.test_idx)
 
 train_loader = DataLoader(data,batch_size=batch_size, 
                             sampler= train_sampler, num_workers=num_workers)
 valid_loader = DataLoader(data,batch_size=batch_size, 
                             sampler= valid_sampler, num_workers=num_workers)
-test_loader = DataLoader(data,batch_size = batch_size, 
+test_loader = DataLoader(test_data,batch_size = batch_size, 
                             sampler = test_sampler, num_workers=num_workers)
 # %%
 
@@ -70,11 +84,11 @@ else:
 
 #%%
 criterion = nn.NLLLoss(reduction='sum')
-optimizer = optim.SGD(model.parameters(),lr=0.003)
+optimizer = optim.SGD(model.parameters(),lr=0.0001)
 
-scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
+#scheduler = StepLR(optimizer, step_size=15, gamma=0.1)
 
-epochs = 75
+epochs = 200
 
 train_losses, validation_losses = [],[]
 

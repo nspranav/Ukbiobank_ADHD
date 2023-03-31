@@ -35,6 +35,7 @@ class Network(nn.Module):
 
         self.convs = nn.Sequential(self.layer1,self.layer2,self.layer3,
                         self.layer4, self.layer5)
+        self.convs.apply(Network.init_weights)
         #self.classifier = nn.Sequential(nn.Dropout(),self.fc1)
         self.dropout = nn.Dropout(0.2)
 
@@ -59,4 +60,10 @@ class Network(nn.Module):
         #img = self.dropout(F.relu(self.fc6(img)))
 
         return img
+
+    @staticmethod
+    def init_weights(m):
+        if isinstance(m, nn.Linear) or isinstance(m,nn.Conv3d):
+            torch.nn.init.xavier_uniform_(m.weight)
+            #m.bias.data.fill_(0.01)
 

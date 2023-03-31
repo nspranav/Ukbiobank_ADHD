@@ -161,8 +161,8 @@ class CustomDataset(Dataset):
             #         img = torch.cat((img,tmp),0)
             #         img = img[:-2,:,:]
             
-            if self.transform:
-                img = self.transform(img)
+            # if self.transform:
+            #     img = self.transform(img)
             if self.target_transform:
                 label = self.target_transform(label)
 

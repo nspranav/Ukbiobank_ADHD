@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 import json
-from captum.attr import IntegratedGradients
+from captum.attr import IntegratedGradients,Occlusion
 from nilearn.image import load_img,resample_img 
 
 import torch
@@ -47,7 +47,7 @@ valid_data = CustomDataset(train= False,valid=False)
 # get filtered variables
 vars = valid_data.vars.iloc[valid_data.test_idx]
 
-valid_sampler = SubsetRandomSampler(valid_data.female_idx)
+valid_sampler = SubsetRandomSampler(valid_data.male_idx)
 
 valid_loader = DataLoader(valid_data,batch_size=batch_size, 
                             sampler= valid_sampler, num_workers=num_workers)
@@ -59,7 +59,7 @@ X_all /= len(valid_loader)
 X_all = np.expand_dims(np.expand_dims(X_all,axis =0),axis=0)
 X_all = torch.tensor(X_all).float().to(device)
 
-ig = IntegratedGradients(model)
+ig = Occlusion(model)
 
 attr_0 = attr_1 = np.zeros((121,145,121),dtype = np.float64)
 
@@ -87,9 +87,11 @@ for X,y,age in valid_loader:
     soft_max = F.softmax(pred,dim=0)
     pred_test = torch.cat((pred_test,soft_max.argmax().unsqueeze(0)),0)
     if soft_max.argmax() == y:
-        attr, delta = ig.attribute(torch.unsqueeze(X,1).float(), baselines=X_all,target=y, return_convergence_delta=True, 
-                        internal_batch_size=5,n_steps=550)
-        deltas = torch.cat((deltas,delta.unsqueeze(0).float()),0)
+        # attr, delta = ig.attribute(torch.unsqueeze(X,1).float(), baselines=X_all,target=y, return_convergence_delta=True, 
+        #                 internal_batch_size=5,n_steps=550)
+        attr = ig.attribute(torch.unsqueeze(X,1).float(),baselines=X_all,target=y,
+                sliding_window_shapes=(1,3,3,3))
+        #deltas = torch.cat((deltas,delta.unsqueeze(0).float()),0)
         attr = attr.detach().cpu().numpy().astype(dtype=np.float64)
         attr = attr.squeeze()
         #mask = np.abs(attr) > 1e-5 #check this part
@@ -114,13 +116,13 @@ for X,y,age in valid_loader:
             num_1 += 1
             attr_1 += attr
 
-female_df = pd.DataFrame.from_dict(region_means)
-female_df.to_csv('female_df.csv',index=False)
+male_df = pd.DataFrame.from_dict(region_means)
+male_df.to_csv('male_df.csv',index=False)
 
 #%%
-with open('attr_mean_female_0.npy', 'wb') as f:
+with open('attr_mean_male_0.npy', 'wb') as f:
     np.save(f, attr_0)
-    print(f'num_0_female {num_0}') #f169 #m147
-with open('attr_mean_female_1.npy', 'wb') as f:
+    print(f'num_0_male {num_0}') #f169 #m147
+with open('attr_mean_male_1.npy', 'wb') as f:
     np.save(f, attr_1)
-    print(f'num_1_female {num_1}') #f90 #m65
+    print(f'num_1_male {num_1}') #f90 #m65

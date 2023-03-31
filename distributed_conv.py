@@ -45,64 +45,42 @@ writer = SummaryWriter(log_dir=path)
 # Loading the Data #####
 ########################
 
+########################
+# Loading the Data #####
+########################
 
-
-torch.manual_seed(52)
 # number of subprocesses to use for data loading
 num_workers = 4
 # how many samples per batch to load
-batch_size = 25
-if torch.cuda.device_count() > 1:
-    batch_size *= torch.cuda.device_count()
-else:
-    batch_size = 10
+batch_size = 10
 # percentage of training set to use as validation
-valid_size = 0.20
+valid_size = 0.1
 # percentage of data to be used for testset
-# test_size = 0.10
+test_size = 0.05
 
 
-train_data = CustomDataset(transform = 
+data = CustomDataset(transform = 
                         transforms.Compose([
-                            transforms.RandomHorizontalFlip()
-                            ]),train=True)
-
-
+                        transforms.ToTensor()]),train=True)
 test_data = CustomDataset(train=False,valid=False)
-
-# get filtered variables
-vars = train_data.vars
-
-# Prepare for stratified sampling
-sss = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=52)
-train_idx, valid_idx = next(sss.split(np.zeros_like(vars),vars.new_score.values))
-vars = vars.iloc[train_idx]
 
 
 # obtaining indices that will be used for train, validation, and test
 
-# num_train = len(train_data)
-# indices = list(range(num_train))
-# np.random.shuffle(indices)
-# test_split = int(np.floor(test_size * num_train))
-# test_idx, train_idx = indices[: test_split], indices[test_split : ]
-
-# train_rem = len(train_idx)
-# valid_spilt = int(np.floor(valid_size * train_rem))
-
-# valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
+sss = StratifiedShuffleSplit(n_splits=1, test_size=0.1, random_state=26)
+train_idx, valid_idx = next(sss.split(np.zeros_like(data.vars),
+    data.vars.new_score.values))
 
 train_sampler = SubsetRandomSampler(train_idx)
 valid_sampler = SubsetRandomSampler(valid_idx)
-test_sampler = SubsetRandomSampler(train_data.test_idx)
+test_sampler = SubsetRandomSampler(test_data.test_idx)
 
-train_loader = DataLoader(train_data,batch_size=batch_size, 
+train_loader = DataLoader(data,batch_size=batch_size, 
                             sampler= train_sampler, num_workers=num_workers)
-valid_loader = DataLoader(train_data,batch_size=batch_size, 
+valid_loader = DataLoader(data,batch_size=batch_size, 
                             sampler= valid_sampler, num_workers=num_workers)
-
-test_loader = DataLoader(test_data,batch_size=batch_size,
-                            sampler= test_sampler, num_workers=num_workers)
+test_loader = DataLoader(test_data,batch_size = batch_size, 
+                            sampler = test_sampler, num_workers=num_workers)
 # %%
 
 
@@ -111,16 +89,17 @@ print("Using {} device".format(device))
 
 model = Network()
 
-model.fc1 = nn.Sequential(nn.Linear(512,2))
-model = nn.DataParallel(model)
-model.to(device)
+model.fc1 = nn.Sequential(nn.Linear(512,256),nn.Linear(256,128),nn.Linear(128,2))
+model.fc1.apply(Network.init_weights)
+# model = nn.DataParallel(model)
+# model = model.to(device)
 
 # Loading the model from Job 5436878
 #load model
 #load_path = os.path.join(parent_directory,'5436878','models','epoch_28')
 
-load_path = os.path.join(parent_directory,'1818979','models_fold','5','epoch_38')
-model.load_state_dict(torch.load(load_path))
+#load_path = os.path.join(parent_directory,'1818979','models_fold','5','epoch_38')
+#model.load_state_dict(torch.load(load_path))
 
 
 #Freezing the conv layers but not the Batch Norm Layers
@@ -139,14 +118,14 @@ print(model)
 
 epochs = 250
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(params=model.parameters(), lr=0.001,momentum=1e-6)
+optimizer = optim.SGD(params=model.parameters(), lr=1e-4)
 
 #%%
 
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
 
-model.to(device)
+model = model.to(device)
 
 
 
@@ -164,7 +143,7 @@ for e in range(1,epochs+1):
     pred_train = torch.tensor([]).to(device)
     pred_valid = torch.tensor([]).to(device)
 
-    for X,y in train_loader:
+    for X,y,_ in train_loader:
 
         X,y = X.to(device),y.to(device)
 
@@ -193,7 +172,7 @@ for e in range(1,epochs+1):
         num_correct_valid = 0
 
         with torch.no_grad():
-            for X,y in valid_loader:
+            for X,y,_ in valid_loader:
 
                 X,y = X.to(device),y.to(device)
 
