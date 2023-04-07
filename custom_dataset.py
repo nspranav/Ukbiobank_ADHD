@@ -28,6 +28,7 @@ class CustomDataset(Dataset):
         self.dirs.pop(15211)
         self.dirs.pop(18347)
         self.dirs.pop(29719)
+        self.dirs.remove('Raw_T1.m')
         """
         # column for age: age_when_attended_assessment_centre_f21003_0_0
         # column for sex; sex_f31_0_0 

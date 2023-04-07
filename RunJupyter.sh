@@ -2,10 +2,10 @@
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 4
-#SBATCH --mem=500g
-#SBATCH --gres=gpu:V100:1
-#SBATCH -t 3-00:00
-#SBATCH -p qTRDHM
+#SBATCH --mem=80g
+#SBATCH --gres=gpu:V100:4
+#SBATCH -t 1-00:00
+#SBATCH -p qTRDGPUL
 #SBATCH -J Jupyter
 #SBATCH -e error%A.err
 #SBATCH -o gpu4_%A.txt
