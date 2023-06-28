@@ -1,7 +1,7 @@
 #%%
 import torch
 import numpy as np
-from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 from sklearn.metrics import matthews_corrcoef,f1_score,balanced_accuracy_score
 from matplotlib import pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
@@ -22,9 +22,13 @@ def write_confusion_matrix(writer:SummaryWriter, true_values:np.ndarray,
     mcc = matthews_corrcoef(true_values,pred_values)
     f1_s = f1_score(true_values,pred_values)
     b_a = balanced_accuracy_score(true_values, pred_values)
+    tn, fp, fn, tp = confusion_matrix(true_values, pred_values).ravel()
+    specificity = tn / (tn+fp)
+    sensitivity = tp/ (tp+fn)
+
     plt.title('MCC= '+f'{mcc:.3f} F1= {f1_s:.3f} BAC= {b_a:.5f}')
     writer.add_figure(message, plt.gcf(),e,True)
-    return mcc,f1_s,b_a
+    return mcc,f1_s,b_a,specificity,sensitivity
 
 def find_lr(model, train_loader, loss_fn, optimizer, init_value=1e-8, final_value=10.0,
              device = 'cuda'):

@@ -70,13 +70,13 @@ np.random.shuffle(indices)
 test_split = int(np.floor(test_size * num_train))
 test_idx, train_idx = indices[: test_split], indices[test_split : ]
 
-train_rem = len(train_idx)
-valid_spilt = int(np.floor(valid_size * train_rem))
+#train_rem = len(train_idx)
+#valid_spilt = int(np.floor(valid_size * train_rem))
 
-valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
+#valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
 
 train_sampler = SubsetRandomSampler(train_idx)
-valid_sampler = SubsetRandomSampler(valid_idx)
+#valid_sampler = SubsetRandomSampler(valid_idx)
 test_sampler = SubsetRandomSampler(test_idx)
 
 train_loader = DataLoader(train_data,batch_size=batch_size, 

@@ -153,7 +153,7 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars),vars.new_score.values)
         pred_test = torch.tensor([]).to(device)
         pred_proba_test = torch.tensor([]).to(device)
 
-        for X,y in train_loader:
+        for X,y,_ in train_loader:
 
             X,y = X.to(device),y.to(device)
             #print(actual_train.dtype,y.dtype,actual_train.shape,y.shape)
@@ -180,7 +180,7 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars),vars.new_score.values)
             num_correct_valid = 0
 
             with torch.no_grad():
-                for X,y in valid_loader:
+                for X,y,_ in valid_loader:
 
                     X,y = X.to(device),y.to(device)
 
@@ -203,7 +203,7 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars),vars.new_score.values)
         num_correct_test = 0
 
         with torch.no_grad():
-            for X,y in test_loader:
+            for X,y,_ in test_loader:
 
                 X,y = X.to(device),y.to(device)
 
@@ -222,12 +222,12 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars),vars.new_score.values)
                 pred_test = torch.cat((pred_test,torch.max(soft_max, dim=1)[1]),0)
                 num_correct_test += torch.sum(correct).item()
 
-        mcc_t,f1_t,b_a_t = write_confusion_matrix(writer, actual_train.detach().cpu().numpy(),
+        mcc_t,f1_t,b_a_t,specificity_t,sensitivity_t = write_confusion_matrix(writer, actual_train.detach().cpu().numpy(),
             pred_train.detach().cpu().numpy(), e,'Confusion Matrix - Train' )
-        mcc_v,f1_v,b_a_v = write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
+        mcc_v,f1_v,b_a_v,specificity_v,sensitivity_v = write_confusion_matrix(writer,actual_valid.detach().cpu().numpy(),
             pred_valid.detach().cpu().numpy(), e,'Confusion Matrix - Validation')
-        mcc_test,f1_test,b_a_test = write_confusion_matrix(writer,actual_test.detach().cpu().numpy(),
-            pred_test.detach().cpu().numpy(), e,'Confusion Matrix - Validation')
+        mcc_test,f1_test,b_a_test,specificity_test,sensitivity_test = write_confusion_matrix(writer,actual_test.detach().cpu().numpy(),
+            pred_test.detach().cpu().numpy(), e,'Confusion Matrix - Test')
         
         auc_train = roc_auc_score(actual_train.detach().cpu().numpy(),pred_proba_train.detach().cpu().numpy())
         auc_valid = roc_auc_score(actual_valid.detach().cpu().numpy(),pred_proba_valid.detach().cpu().numpy())
@@ -242,7 +242,13 @@ for train_idx, valid_idx in sss.split(np.zeros_like(vars),vars.new_score.values)
             "AUC valid: {:4f}.. ".format(auc_valid),
             "Test Accuracy: {:.3f}.. ".format(num_correct_test/len(test_data.test_idx)),
             "Test Bal acc: {:.4f}.. ".format(b_a_test),
-            "AUC Test: {:4f}.. ".format(auc_test)
+            "AUC Test: {:4f}.. ".format(auc_test),
+            f'Specificity train: {specificity_t:4f}',
+            f'Specificity valid: {specificity_v:4f}',
+            f'Specificity test: {specificity_test:4f}',
+            f'Sensitivity train: {sensitivity_t:4f}',
+            f'Sensitivity valid: {sensitivity_v:4f}'
+            f'Sensitivity test: {sensitivity_test:4f}'
         )
             
         # writer.add_scalar('Train r2', r2_score(pred_train,actual_train),e)

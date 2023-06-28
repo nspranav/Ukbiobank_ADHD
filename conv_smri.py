@@ -51,35 +51,12 @@ valid_size = 0.1
 # percentage of data to be used for testset
 test_size = 0.05
 
+valid_data = CustomDataset(train=False,valid=True)
 
-data = CustomDataset(transform = transforms.Compose([
-                            transforms.RandomHorizontalFlip()
-                            ]),train = True)
-
+test_data = CustomDataset(train=False,valid=False)
 
 # obtaining indices that will be used for train, validation, and test
 
-num_train = len(data)
-indices = list(range(num_train))
-np.random.shuffle(indices)
-test_split = int(np.floor(test_size * num_train))
-test_idx, train_idx = indices[: test_split], indices[test_split : ]
-
-train_rem = len(train_idx)
-valid_spilt = int(np.floor(valid_size * train_rem))
-
-valid_idx, train_idx = indices[: valid_spilt], indices[valid_spilt : ]
-
-train_sampler = SubsetRandomSampler(train_idx)
-valid_sampler = SubsetRandomSampler(valid_idx)
-test_sampler = SubsetRandomSampler(test_idx)
-
-train_loader = DataLoader(data,batch_size=batch_size, 
-                            sampler= train_sampler)
-valid_loader = DataLoader(data,batch_size=batch_size, 
-                            sampler= valid_sampler)
-test_loader = DataLoader(data,batch_size = batch_size, 
-                            sampler = test_sampler)
 # %%
 
 device = "cuda" if torch.cuda.is_available() else "cpu"

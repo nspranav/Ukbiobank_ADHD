@@ -17,7 +17,7 @@ class Network(nn.Module):
         self.cv4 = nn.Conv3d(128, 256, 3,stride=1, padding=0)
         self.bn4 = nn.BatchNorm3d(256)
         self.cv5 = nn.Conv3d(256, 256, 3,stride=1, padding=0) # 256*1*2
-        self.bn5 = nn.BatchNorm3d(256)
+        self.bn5 = nn.BatchNorm3d(256) 
         
         self.pool = nn.MaxPool3d(2)
 

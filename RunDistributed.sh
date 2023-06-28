@@ -3,7 +3,7 @@
 #SBATCH -n 1
 #SBATCH -c 5
 #SBATCH --mem=40g
-#SBATCH --gres=gpu:V100:1
+#SBATCH --gres=gpu:V100:4
 #SBATCH -p qTRDGPUH
 #SBATCH --nodelist=arctrdgn002
 #SBATCH -J ConvLr00001
@@ -16,5 +16,5 @@
 #SBATCH --oversubscribe
 
 
-source /data/users2/pnadigapusuresh1/software/bin/activate latest
-python compute_attributions.py ${SLURM_JOBID}
+source /data/users2/pnadigapusuresh1/software/bin/activate workinglatest
+python crossval_age_pred.py ${SLURM_JOBID}

@@ -11,3 +11,5 @@ reg_valid.png
 *.pk
 Job*/
 gpu*.txt
+Survey*
+test*
